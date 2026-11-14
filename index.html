@@ -910,7 +910,8 @@ table.t tr:last-child td{border-bottom:0}
           <div class="field"><label for="jugG">Jarra grande: cafés que salen</label><input type="number" id="jugG" min="1" max="6" step="1" inputmode="numeric"></div>
           <div class="field"><label for="jugP">Jarra pequeña: cafés que salen</label><input type="number" id="jugP" min="1" max="6" step="1" inputmode="numeric"></div>
         </div>
-        <div class="row"><button type="button" class="btn" id="changeRole">Cambiar uso de este dispositivo</button><button type="button" class="btn" id="redoSetup">Repetir configuración inicial</button><button type="button" class="btn" id="forceUpdate">Actualizar la app</button><span class="hint" id="appVer" style="align-self:center">Versión 63</span><button type="button" class="btn ghost danger" id="logoutBtn">Cerrar sesión</button></div>
+        <div class="card" id="installHelp" hidden style="display:grid;gap:6px"></div>
+        <div class="row"><button type="button" class="btn" id="changeRole">Cambiar uso de este dispositivo</button><button type="button" class="btn" id="redoSetup">Repetir configuración inicial</button><button type="button" class="btn primary" id="installBtn2">Instalar la app</button><button type="button" class="btn" id="forceUpdate">Actualizar la app</button><span class="hint" id="appVer" style="align-self:center">Versión 64</span><button type="button" class="btn ghost danger" id="logoutBtn">Cerrar sesión</button></div>
         <p class="legal">Esta app organiza pedidos, caja y números internos. No emite tickets ni facturas: seguid usando vuestro sistema de tickets y consultad con la gestoría qué programa de facturación necesitáis por la normativa Veri*factu.</p>
       </div></section></div>
   </div>
@@ -3775,6 +3776,24 @@ function setupInstall(){
   });
   $("#installNo").addEventListener("click", () => { bar.hidden = true; lsSet("installNo", "1"); });
 }
+// Botón fijo en Ajustes → Equipo: instala si Chrome lo permite y, si no, explica cómo hacerlo a mano
+addEventListener("beforeinstallprompt", e => { e.preventDefault(); installEv = e; });
+$("#installBtn2").addEventListener("click", async () => {
+  const help = $("#installHelp"), standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+  if (standalone){ toast("Ya la estás usando como app instalada"); return; }
+  if (installEv){ installEv.prompt(); const r = await installEv.userChoice.catch(() => null); installEv = null; if (r && r.outcome === "accepted"){ help.hidden = true; toast("Instalando…"); } return; }
+  const ios = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const samsung = /SamsungBrowser/.test(navigator.userAgent);
+  help.innerHTML = ios
+    ? `<b>Para instalarla en el iPad o iPhone</b><span>En Safari: pulsa <b>Compartir</b> (el cuadrado con la flecha hacia arriba) → <b>Añadir a pantalla de inicio</b> → <b>Añadir</b>.</span>`
+    : samsung
+    ? `<b>Para instalarla</b><span>Pulsa el menú (☰ abajo a la derecha) → <b>Añadir página a</b> → <b>Pantalla de inicio</b>.</span>`
+    : `<b>Chrome no deja instalarla desde aquí ahora mismo</b>
+       <span>1. Mira si ya está instalada: busca «Utopía» en el cajón de aplicaciones del móvil. Si hay un icono viejo, mantenlo pulsado → <b>Desinstalar</b>, cierra Chrome del todo y vuelve a abrir esta página.</span>
+       <span>2. Si no, en Chrome pulsa ⋮ → <b>Compartir…</b> y busca <b>Añadir a pantalla de inicio</b>.</span>
+       <span>3. Otra forma que siempre funciona en Samsung: abre esta misma dirección en <b>Samsung Internet</b> (el navegador morado) → menú ☰ → <b>Añadir página a</b> → <b>Pantalla de inicio</b>.</span>`;
+  help.hidden = false; help.scrollIntoView({behavior:"smooth", block:"center"});
+});
 
 /* ---------- conexión ---------- */
 async function prune(){

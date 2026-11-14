@@ -3,6 +3,7 @@
   "short_name": "Utopía",
   "description": "Pedidos, barra, caja y números de Utopía Coffee Club",
   "lang": "es",
+  "id": "/",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
