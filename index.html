@@ -911,8 +911,14 @@ table.t tr:last-child td{border-bottom:0}
           <div class="field"><label for="jugP">Jarra pequeña: cafés que salen</label><input type="number" id="jugP" min="1" max="6" step="1" inputmode="numeric"></div>
         </div>
         <div class="card" id="installHelp" hidden style="display:grid;gap:6px"></div>
-        <div class="row"><button type="button" class="btn" id="changeRole">Cambiar uso de este dispositivo</button><button type="button" class="btn" id="redoSetup">Repetir configuración inicial</button><button type="button" class="btn primary" id="installBtn2">Instalar la app</button><button type="button" class="btn" id="forceUpdate">Actualizar la app</button><span class="hint" id="appVer" style="align-self:center">Versión 64</span><button type="button" class="btn ghost danger" id="logoutBtn">Cerrar sesión</button></div>
+        <div class="row"><button type="button" class="btn" id="changeRole">Cambiar uso de este dispositivo</button><button type="button" class="btn" id="redoSetup">Repetir configuración inicial</button><button type="button" class="btn primary" id="installBtn2">Instalar la app</button><button type="button" class="btn" id="forceUpdate">Actualizar la app</button><span class="hint" id="appVer" style="align-self:center">Versión 65</span><button type="button" class="btn ghost danger" id="logoutBtn">Cerrar sesión</button></div>
         <p class="legal">Esta app organiza pedidos, caja y números internos. No emite tickets ni facturas: seguid usando vuestro sistema de tickets y consultad con la gestoría qué programa de facturación necesitáis por la normativa Veri*factu.</p>
+        <div style="border-top:1px solid var(--line);padding-top:12px;display:grid;gap:8px">
+          <b>Compartir la app de pedidos de los clientes</b>
+          <p class="hint">Envía el enlace por WhatsApp, Instagram o como quieras: quien lo abra puede pedir en la cafetería y en la tienda desde su móvil.</p>
+          <div class="row"><button type="button" class="btn primary" id="shareClient">Compartir la app de pedidos</button><button type="button" class="btn" id="shareShop">Compartir solo la tienda</button></div>
+          <span class="hint" id="shareUrl" style="word-break:break-all;-webkit-user-select:text;user-select:text"></span>
+        </div>
       </div></section></div>
   </div>
 </main>
@@ -3776,6 +3782,16 @@ function setupInstall(){
   });
   $("#installNo").addEventListener("click", () => { bar.hidden = true; lsSet("installNo", "1"); });
 }
+// Compartir la página de pedidos de los clientes (Ajustes → Equipo)
+const clientUrl = shop => new URL("pedir.html" + (shop ? "#tienda" : ""), location.href).href;
+$("#shareUrl").textContent = clientUrl(false);
+async function shareClient(shop){
+  const url = clientUrl(shop), data = {title:"Utopía Coffee Club", text: shop ? "Café en grano y chocolate de Puchero: pídelo aquí y recógelo en Utopía Coffee Club." : "Pide desde el móvil en Utopía Coffee Club y recógelo en el mostrador.", url};
+  if (navigator.share){ try { await navigator.share(data); return; } catch(e){ if (e && e.name === "AbortError") return; } }
+  try { await navigator.clipboard.writeText(url); toast("Enlace copiado: pégalo donde quieras"); } catch(e){ window.prompt("Copia el enlace:", url); }
+}
+$("#shareClient").addEventListener("click", () => shareClient(false));
+$("#shareShop").addEventListener("click", () => shareClient(true));
 // Botón fijo en Ajustes → Equipo: instala si Chrome lo permite y, si no, explica cómo hacerlo a mano
 addEventListener("beforeinstallprompt", e => { e.preventDefault(); installEv = e; });
 $("#installBtn2").addEventListener("click", async () => {
