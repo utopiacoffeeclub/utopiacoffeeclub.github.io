@@ -130,6 +130,8 @@ details.fold > summary .count{order:4}
 .phead .pn{margin-right:auto;min-width:0;overflow-wrap:anywhere}
 .icard.low{border-color:var(--danger)}
 .notice{font-size:.85rem;color:var(--muted);width:100%}
+.installbar{width:100%;display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--surface);border:1.5px solid var(--accent);border-radius:12px;padding:8px 10px;font-size:.92rem}
+.installbar span{flex:1;min-width:160px}
 .notice.warn{color:var(--danger)}
 
 main{max-width:1200px;margin:0 auto}
@@ -483,6 +485,7 @@ table.t tr:last-child td{border-bottom:0}
     <button type="button" data-view="ajustes">Ajustes</button>
   </nav>
   <div class="notice" id="notice">Conectando…</div>
+  <div class="installbar" id="installBar" hidden><span id="installTxt">Instala la app en este aparato para abrirla como una app.</span><button type="button" class="btn small primary" id="installBtn">Instalar la app</button><button type="button" class="btn ghost small" id="installNo" aria-label="Ahora no">✕</button></div>
 </header>
 
 <main>
@@ -907,7 +910,7 @@ table.t tr:last-child td{border-bottom:0}
           <div class="field"><label for="jugG">Jarra grande: cafés que salen</label><input type="number" id="jugG" min="1" max="6" step="1" inputmode="numeric"></div>
           <div class="field"><label for="jugP">Jarra pequeña: cafés que salen</label><input type="number" id="jugP" min="1" max="6" step="1" inputmode="numeric"></div>
         </div>
-        <div class="row"><button type="button" class="btn" id="changeRole">Cambiar uso de este dispositivo</button><button type="button" class="btn" id="redoSetup">Repetir configuración inicial</button><button type="button" class="btn" id="forceUpdate">Actualizar la app</button><span class="hint" id="appVer" style="align-self:center">Versión 62</span><button type="button" class="btn ghost danger" id="logoutBtn">Cerrar sesión</button></div>
+        <div class="row"><button type="button" class="btn" id="changeRole">Cambiar uso de este dispositivo</button><button type="button" class="btn" id="redoSetup">Repetir configuración inicial</button><button type="button" class="btn" id="forceUpdate">Actualizar la app</button><span class="hint" id="appVer" style="align-self:center">Versión 63</span><button type="button" class="btn ghost danger" id="logoutBtn">Cerrar sesión</button></div>
         <p class="legal">Esta app organiza pedidos, caja y números internos. No emite tickets ni facturas: seguid usando vuestro sistema de tickets y consultad con la gestoría qué programa de facturación necesitáis por la normativa Veri*factu.</p>
       </div></section></div>
   </div>
@@ -3756,6 +3759,23 @@ function saveErrMsg(err, fallback){
   return fallback;
 }
 
+/* ---------- instalar la app (Chrome no siempre lo ofrece en su menú) ---------- */
+let installEv = null;
+function setupInstall(){
+  const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+  if (standalone || lsGet("installNo") === "1") return;
+  const bar = $("#installBar"), ios = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  addEventListener("beforeinstallprompt", e => { e.preventDefault(); installEv = e; $("#installBtn").hidden = false; $("#installTxt").textContent = "Instala la app en este aparato para abrirla como una app."; bar.hidden = false; });
+  addEventListener("appinstalled", () => { bar.hidden = true; toast("App instalada: ya la tienes en la pantalla de inicio"); });
+  if (ios){ $("#installBtn").hidden = true; $("#installTxt").textContent = "Para instalarla: Compartir (el cuadrado con la flecha) → Añadir a pantalla de inicio."; bar.hidden = false; }
+  $("#installBtn").addEventListener("click", async () => {
+    if (!installEv){ toast("Este navegador no deja instalarla desde aquí. Ábrela en Chrome."); return; }
+    installEv.prompt(); const r = await installEv.userChoice.catch(() => null); installEv = null;
+    if (r && r.outcome === "accepted") bar.hidden = true;
+  });
+  $("#installNo").addEventListener("click", () => { bar.hidden = true; lsSet("installNo", "1"); });
+}
+
 /* ---------- conexión ---------- */
 async function prune(){
   const limit = Date.now() - 2*86400000;
@@ -3843,6 +3863,7 @@ boot();
 // Actualizaciones: al volver a la app busca versión nueva; si la hay, recarga sola cuando no estáis a mitad de algo
 if ("serviceWorker" in navigator) addEventListener("load", () => {
   const hadCtrl = !!navigator.serviceWorker.controller;
+  setupInstall();
   navigator.serviceWorker.register("sw.js", {updateViaCache: "none"}).then(reg => {
     document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") reg.update().catch(() => {}); });
     setInterval(() => reg.update().catch(() => {}), 30*60000);
