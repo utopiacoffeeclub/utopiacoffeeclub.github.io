@@ -71,11 +71,13 @@ button{cursor:pointer}
 .brand .club{display:inline-block;margin-left:4px;font-family:var(--display);font-size:.95rem;letter-spacing:.2em;line-height:1}
 .brand small{display:block;font-size:.8rem;color:var(--muted);letter-spacing:.04em;margin-top:2px}
 .brand svg{width:22px;height:22px;flex:none}
-/* Pestañas: dos puestos grandes + Oficina pequeña */
-.tabs{display:grid;grid-template-columns:1fr 1fr auto auto;gap:6px;align-items:stretch;min-width:min(100%,420px)}
-.shopbtn{position:relative}
+/* Pestañas: dos puestos grandes + Dinero, Almacén y ajustes pequeños */
+.tabs{display:grid;grid-template-columns:1fr 1fr auto auto auto;gap:6px;align-items:stretch;min-width:min(100%,420px)}
+.tabs button{position:relative}
+.tabs button.gear{padding:6px 9px;display:grid;place-items:center}
+.tabs button.gear svg{width:20px;height:20px;display:block}
 @media (max-width:385px){.tabs button.big{font-size:1.1rem!important;padding:6px 4px!important;letter-spacing:.02em!important}.tabs button.office{padding:6px 5px!important;font-size:.7rem!important;letter-spacing:0!important}}
-.shopbtn b{position:absolute;top:-7px;right:-6px;min-width:22px;height:22px;border-radius:11px;background:var(--danger);color:#fff;font-size:.8rem;line-height:22px;text-align:center;padding:0 5px;font-weight:700}
+.tabs button b{position:absolute;top:-7px;right:-6px;min-width:22px;height:22px;border-radius:11px;background:var(--danger);color:#fff;font-size:.8rem;line-height:22px;text-align:center;padding:0 5px;font-weight:700}
 .tabs button{border:1.5px solid var(--line);background:var(--surface);border-radius:12px;color:var(--muted);white-space:nowrap}
 .tabs button.big{font-family:var(--display);font-size:1.5rem;letter-spacing:.07em;padding:6px 14px;line-height:1.1}
 .tabs button.office{font-weight:700;font-size:.85rem;letter-spacing:.04em;padding:6px 12px;text-transform:uppercase}
@@ -256,8 +258,8 @@ input[type=text],input[type=number],input[type=date],select{width:100%;box-sizin
 .kpi span .mins,.kpi .mins{white-space:normal}
 /* Ordenador de casa: solo Oficina, más ancho y cómodo con ratón */
 body.pc-office .tabs button.big{display:none}
-body.pc-office .tabs{grid-template-columns:auto auto;min-width:0}
-body.pc-office #officeNav{display:flex!important}
+body.pc-office .tabs{grid-template-columns:auto auto auto;min-width:0}
+body.pc-office #modeBar{display:none!important}
 @media (min-width:1100px){
   main{max-width:1320px}
   body.pc-office .subnav button{font-size:1.05rem;padding:10px 18px}
@@ -403,9 +405,14 @@ table.t tr:last-child td{border-bottom:0}
 .up{color:var(--danger);font-weight:700}
 .okc{color:var(--accent);font-weight:700}
 /* Modos Cobrar / Entregar */
-.modebar{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px}
+.modebar{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:10px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px}
 .modebar button{border:0;background:none;border-radius:9px;padding:10px;font-family:var(--display);font-size:1.5rem;letter-spacing:.06em;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:8px}
 .modebar button[aria-selected="true"]{background:var(--ink);color:var(--bg)}
+@media (max-width:480px){.modebar button{font-size:1.25rem;letter-spacing:.03em;padding:10px 4px;gap:5px}.modebar .mbadge{min-width:22px;height:22px;font-size:.82rem;padding:0 5px}}
+/* Caja y caja fuerte comparten pantalla: cada pestaña enseña su parte */
+#v-caja[data-part="fuerte"] > :not(#safeSec){display:none!important}
+#v-caja[data-part="turno"] > #safeSec{display:none!important}
+#v-caja[data-part="fuerte"] #f-safe > summary{pointer-events:none}
 .mbadge{min-width:26px;height:26px;border-radius:999px;background:var(--line);color:var(--ink);font-family:var(--body);font-weight:700;font-size:.95rem;display:inline-grid;place-items:center;padding:0 7px;letter-spacing:0}
 .mbadge.hot{background:var(--ready);color:var(--ready-ink);animation:pulse 1.2s ease-in-out infinite}
 @keyframes pulse{50%{transform:scale(1.15)}}
@@ -471,18 +478,25 @@ table.t tr:last-child td{border-bottom:0}
 <header class="top">
   <div class="brand"><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="12" rx="7.5" ry="10.5" transform="rotate(35 12 12)" fill="currentColor"/><path d="M12 2.5c-3 3.5 3 6.5 0 10s3 6 0 9" transform="rotate(35 12 12)" stroke="var(--bg)" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>
     <div><span class="word">UTOPÍA</span> <span class="club">COFFEE CLUB</span><small id="sub">Pedidos · tomar, cobrar y entregar</small></div></div>
-  <nav class="tabs" aria-label="Puestos">
-    <button type="button" class="big" data-view="pedidos">Mostrador</button>
-    <button type="button" class="big" data-view="barra">Cafetera</button>
-    <button type="button" class="office shopbtn" data-view="tienda" aria-label="Tienda: pedidos de café en grano y chocolate">Tienda<b id="shopBadge" hidden></b></button>
-    <button type="button" class="office" data-office="1" aria-label="Oficina">Oficina</button>
+  <nav class="tabs" aria-label="Secciones">
+    <button type="button" class="big" data-group="mostrador">Mostrador<b id="shopBadge" hidden></b></button>
+    <button type="button" class="big" data-group="cafetera">Cafetera</button>
+    <button type="button" class="office" data-group="dinero">Dinero</button>
+    <button type="button" class="office" data-group="almacen">Almacén<b id="lowBadge" hidden></b></button>
+    <button type="button" class="office gear" data-group="ajustes" aria-label="Ajustes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3h.1a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8v.1a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
   </nav>
-  <nav class="subnav" id="officeNav" aria-label="Oficina" hidden>
-    <button type="button" data-view="caja">Caja</button>
-    <button type="button" data-view="carta">Carta</button>
-    <button type="button" data-view="gastos">Gastos</button>
-    <button type="button" data-view="datos">Datos</button>
-    <button type="button" data-view="ajustes">Ajustes</button>
+  <nav class="subnav" id="subNav" aria-label="Apartados" hidden>
+    <button type="button" data-page="caja" data-g="dinero">Caja</button>
+    <button type="button" data-page="fuerte" data-g="dinero">Caja fuerte</button>
+    <button type="button" data-page="gastos" data-g="dinero">Gastos</button>
+    <button type="button" data-page="datos" data-g="dinero">Datos</button>
+    <button type="button" data-page="tienda" data-g="dinero" data-pc="1">Tienda</button>
+    <button type="button" data-page="carta" data-g="almacen">Carta</button>
+    <button type="button" data-page="escandallos" data-g="almacen">Escandallos</button>
+    <button type="button" data-page="inventario" data-g="almacen">Inventario</button>
+    <button type="button" data-page="compra" data-g="almacen">Lista de la compra</button>
+    <button type="button" data-page="qr" data-g="ajustes">QR y pagos</button>
+    <button type="button" data-page="equipo" data-g="ajustes">Equipo</button>
   </nav>
   <div class="notice" id="notice">Conectando…</div>
   <div class="installbar" id="installBar" hidden><span id="installTxt">Instala la app en este aparato para abrirla como una app.</span><button type="button" class="btn small primary" id="installBtn">Instalar la app</button><button type="button" class="btn ghost small" id="installNo" aria-label="Ahora no">✕</button></div>
@@ -492,14 +506,15 @@ table.t tr:last-child td{border-bottom:0}
   <!-- CONFIGURACIÓN INICIAL -->
   <div id="v-setup" hidden><div class="setup" id="setupBox"></div></div>
 
+  <div class="modebar" id="modeBar" role="tablist" aria-label="Mostrador" hidden>
+    <button type="button" role="tab" data-mode="cobrar" aria-selected="true">Cobrar <span class="mbadge web" id="webBadge" hidden></span></button>
+    <button type="button" role="tab" data-mode="entregar" aria-selected="false">Entregar <span class="mbadge" id="modeBadge" hidden></span></button>
+    <button type="button" role="tab" data-shop="1" aria-selected="false">Tienda <span class="mbadge hot" id="shopBadge2" hidden></span></button>
+  </div>
   <!-- MOSTRADOR (Mario) -->
   <div id="v-pedidos" hidden>
     <div class="banner row" id="shiftBanner" hidden><span id="bannerTxt" style="flex:1;min-width:200px"></span><button type="button" class="btn small" id="bannerBtn"></button></div>
     <div class="banner off" id="outboxBanner" role="status" hidden></div>
-    <div class="modebar" role="tablist" aria-label="Modo">
-      <button type="button" role="tab" data-mode="cobrar" aria-selected="true">Cobrar <span class="mbadge web" id="webBadge" hidden></span></button>
-      <button type="button" role="tab" data-mode="entregar" aria-selected="false">Entregar <span class="mbadge" id="modeBadge" hidden></span></button>
-    </div>
 
     <section id="unpaidSec" hidden>
       <div class="sec-h"><h2>Sin cobrar</h2><span class="count" id="unpaidCount"></span><span class="mins aside" id="unpaidTot"></span></div>
@@ -755,7 +770,7 @@ table.t tr:last-child td{border-bottom:0}
       </form></div></details></section>
     <section><details class="fold" id="f-precios"><summary class="sec-h"><h2>Precios</h2><span class="count" id="priceCount"></span></summary><div class="foldbody"><div class="sugs" id="priceSugs" style="margin-bottom:10px"></div>
       <div class="tablewrap"><table class="t" id="priceTable"></table></div>
-      <p class="hint" style="margin-top:8px">Coste = ingredientes según la receta y el precio de cada suministro. «Te queda» descuenta además la parte de gastos fijos que le toca a cada producto vendido. El sugerido solo salta si el ingrediente se lleva más del % que hayáis puesto en Ajustes → Suministros → Escandallos, o si no cubre los fijos.</p></div></details></section>
+      <p class="hint" style="margin-top:8px">Coste = ingredientes según la receta y el precio de cada suministro. «Te queda» descuenta además la parte de gastos fijos que le toca a cada producto vendido. El sugerido solo salta si el ingrediente se lleva más del % que hayáis puesto en Almacén → Escandallos, o si no cubre los fijos.</p></div></details></section>
     <section>
       <div class="sec-h"><h2>Informe para el dueño</h2></div>
       <div class="card row" style="justify-content:space-between">
@@ -819,25 +834,15 @@ table.t tr:last-child td{border-bottom:0}
         <div class="sec-h" style="margin-top:14px"><h2>Por tipo</h2></div><div class="hbars" id="groupBars"></div>
         <div class="sec-h" style="margin-top:14px"><h2>Espera por hora</h2></div><div class="hbars" id="waitBars"></div></div>
     </section>
-    <section><details class="fold" id="f-compras" open><summary class="sec-h"><h2>Compras sugeridas</h2><span class="count" id="supplyCount"></span></summary><div class="foldbody"><p class="hint" style="margin-bottom:10px">Calculado con lo que vendéis cada día y las recetas. Cuenta el stock en Ajustes → Suministros para saber cuántos días te quedan.</p><div class="sugs" id="supplySugs"></div></div></details></section>
+    <section><details class="fold" id="f-compras" open><summary class="sec-h"><h2>Compras sugeridas</h2><span class="count" id="supplyCount"></span></summary><div class="foldbody"><p class="hint" style="margin-bottom:10px">Calculado con lo que vendéis cada día y las recetas. Cuenta el stock en Almacén → Inventario para saber cuántos días te quedan.</p><div class="sugs" id="supplySugs"></div></div></details></section>
     <section><details class="fold" id="f-dura"><summary class="sec-h"><h2>Cuánto os dura cada suministro</h2></summary><div class="foldbody"><div class="tablewrap"><table class="t" id="durTable"></table></div></div></details></section>
-    <section><details class="fold" id="f-combos"><summary class="sec-h"><h2>Combos que podríais probar</h2></summary><div class="foldbody"><p class="hint" style="margin-bottom:10px">Solo son ideas: no están en la carta. Si os convence alguno, añadidlo en Ajustes como fuera de carta.</p><div class="sugs" id="comboSugs"></div></div></details></section>
+    <section><details class="fold" id="f-combos"><summary class="sec-h"><h2>Combos que podríais probar</h2></summary><div class="foldbody"><p class="hint" style="margin-bottom:10px">Solo son ideas: no están en la carta. Si os convence alguno, añadidlo en Almacén → Carta como fuera de carta.</p><div class="sugs" id="comboSugs"></div></div></details></section>
     <section><details class="fold" id="f-lentos"><summary class="sec-h"><h2>Se venden poco</h2></summary><div class="foldbody"><div class="sugs" id="slowSugs"></div></div></details></section>
   </div>
 
   <!-- OFICINA · AJUSTES -->
   <div id="v-ajustes" hidden>
-    <nav class="subnav ajnav" id="ajNav" aria-label="Ajustes">
-      <button type="button" data-aj="suministros">Suministros</button>
-      <button type="button" data-aj="compra">Lista de la compra</button>
-      <button type="button" data-aj="qr">QR y pagos</button>
-      <button type="button" data-aj="equipo">Equipo</button>
-    </nav>
     <div data-ajp="suministros" hidden>
-      <nav class="subnav ajnav" id="supNav" aria-label="Suministros" style="margin-top:10px">
-        <button type="button" data-sup="esc">Escandallos</button>
-        <button type="button" data-sup="inv">Inventario</button>
-      </nav>
       <div data-supp="esc">
       <section><div class="sec-h"><h2>Escandallos</h2></div>
         <p class="hint" style="margin-bottom:10px">Pon lo que pagasteis y cuánto traía. El coste por gramo (o ml, o unidad) sale solo y va directo a las recetas de la carta.</p>
@@ -851,7 +856,7 @@ table.t tr:last-child td{border-bottom:0}
         <div class="field"><label for="eMin">Avisar si quedan menos de</label><input type="text" id="eMin" data-k="minimo" inputmode="decimal" placeholder="200"></div>
         <button class="btn primary" type="submit">Añadir</button>
       </form>
-      <p class="hint" style="margin-top:6px">Al añadirlo sale en Escandallos, en Inventario y en la receta de cada producto (Oficina → Carta → Editar), listo para poner cuánto lleva.</p></div></details></section>
+      <p class="hint" style="margin-top:6px">Al añadirlo sale en Escandallos, en Inventario y en la receta de cada producto (Almacén → Carta → Editar), listo para poner cuánto lleva.</p></div></details></section>
 
       <section><details class="fold" id="f-costebebida" open><summary class="sec-h"><h2>Coste por bebida</h2><span class="count" id="costCount"></span></summary><div class="foldbody">
         <div class="field" style="max-width:320px;margin-bottom:10px"><label for="costeObj">Máximo que se puede llevar el ingrediente (% del precio)</label><input type="number" id="costeObj" min="10" max="90" step="1" inputmode="numeric" placeholder="50"></div>
@@ -872,7 +877,7 @@ table.t tr:last-child td{border-bottom:0}
         <div class="field"><label for="iMin">Avisar si quedan menos de</label><input type="text" id="iMin" data-k="minimo" inputmode="decimal" placeholder="200"></div>
         <button class="btn primary" type="submit">Añadir</button>
       </form>
-      <p class="hint" style="margin-top:6px">Al añadirlo sale en Escandallos, en Inventario y en la receta de cada producto (Oficina → Carta → Editar), listo para poner cuánto lleva.</p></div></details></section>
+      <p class="hint" style="margin-top:6px">Al añadirlo sale en Escandallos, en Inventario y en la receta de cada producto (Almacén → Carta → Editar), listo para poner cuánto lleva.</p></div></details></section>
       </div>
     </div>
     <div data-ajp="compra" hidden><section>
@@ -911,7 +916,7 @@ table.t tr:last-child td{border-bottom:0}
           <div class="field"><label for="jugP">Jarra pequeña: cafés que salen</label><input type="number" id="jugP" min="1" max="6" step="1" inputmode="numeric"></div>
         </div>
         <div class="card" id="installHelp" hidden style="display:grid;gap:6px"></div>
-        <div class="row"><button type="button" class="btn" id="changeRole">Cambiar uso de este dispositivo</button><button type="button" class="btn" id="redoSetup">Repetir configuración inicial</button><button type="button" class="btn primary" id="installBtn2">Instalar la app</button><button type="button" class="btn" id="forceUpdate">Actualizar la app</button><span class="hint" id="appVer" style="align-self:center">Versión 65</span><button type="button" class="btn ghost danger" id="logoutBtn">Cerrar sesión</button></div>
+        <div class="row"><button type="button" class="btn" id="changeRole">Cambiar uso de este dispositivo</button><button type="button" class="btn" id="redoSetup">Repetir configuración inicial</button><button type="button" class="btn primary" id="installBtn2">Instalar la app</button><button type="button" class="btn" id="forceUpdate">Actualizar la app</button><span class="hint" id="appVer" style="align-self:center">Versión 66</span><button type="button" class="btn ghost danger" id="logoutBtn">Cerrar sesión</button></div>
         <p class="legal">Esta app organiza pedidos, caja y números internos. No emite tickets ni facturas: seguid usando vuestro sistema de tickets y consultad con la gestoría qué programa de facturación necesitáis por la normativa Veri*factu.</p>
         <div style="border-top:1px solid var(--line);padding-top:12px;display:grid;gap:8px">
           <b>Compartir la app de pedidos de los clientes</b>
@@ -967,8 +972,15 @@ function parseMoney(v){ const s = String(v ?? "").trim(); if (!s) return NaN; co
 
 const GROUP_ORDER = ["Matcha","Cafés","Repostería"];
 const VIEWS = ["pedidos","barra","tienda","caja","carta","gastos","datos","ajustes"];
-const SUBS = {tienda:"Tienda · café en grano y chocolate de Puchero", pedidos:"Mostrador · cobrar, servir y entregar", barra:"Cafetera · cafés y matcha", caja:"Oficina · caja del turno", gastos:"Oficina · gastos y beneficio", datos:"Oficina · ventas y compras", ajustes:"Oficina · ajustes"};
-const OFFICE = ["caja","carta","gastos","datos","ajustes"];
+const SUBS = {tienda:"Tienda · pedidos de café en grano y chocolate", pedidos:"Mostrador · cobrar, servir y entregar", barra:"Cafetera · cafés y matcha", caja:"Dinero · caja del turno", fuerte:"Dinero · caja fuerte", gastos:"Dinero · gastos y beneficio", datos:"Dinero · ventas y números", carta:"Almacén · carta y recetas", escandallos:"Almacén · lo que cuesta cada ingrediente", inventario:"Almacén · lo que queda", compra:"Almacén · lista de la compra", qr:"Ajustes · QR y pagos", equipo:"Ajustes · equipo y este aparato"};
+// Cada apartado: qué pantalla enseña (v) y en qué botón de arriba vive (g)
+const PAGES = {
+  pedidos:{v:"pedidos", g:"mostrador"}, tienda:{v:"tienda", g:"mostrador"}, barra:{v:"barra", g:"cafetera"},
+  caja:{v:"caja", g:"dinero"}, fuerte:{v:"caja", g:"dinero"}, gastos:{v:"gastos", g:"dinero"}, datos:{v:"datos", g:"dinero"},
+  carta:{v:"carta", g:"almacen"}, escandallos:{v:"ajustes", g:"almacen", aj:"suministros", sup:"esc"}, inventario:{v:"ajustes", g:"almacen", aj:"suministros", sup:"inv"}, compra:{v:"ajustes", g:"almacen", aj:"compra"},
+  qr:{v:"ajustes", g:"ajustes", aj:"qr"}, equipo:{v:"ajustes", g:"ajustes", aj:"equipo"}
+};
+const GROUP_HOME = {mostrador:"pedidos", cafetera:"barra", dinero:"caja", almacen:"carta", ajustes:"qr"};
 const DENOMS = [50,20,10,5,2,1,0.5,0.2,0.1,0.05,0.02,0.01];
 const DENOMS_C = DENOMS.map(d => Math.round(d*100));
 const CATS = ["Café y matcha","Leche y bebidas vegetales","Repostería","Vasos y envases","Limpieza","Alquiler","Luz, agua e internet","Autónomos y gestoría","Otros"];
@@ -988,7 +1000,7 @@ const openIns = new Set();
 let movType = "salida";
 // Asistencia que llega desde WodBuster (marcador «Enviar a Utopía»): viene en la dirección como #wb=…
 try { const m = /^#wb=([\w-]+)$/.exec(location.hash); if (m){ sessionStorage.setItem("wbImport", m[1]); history.replaceState(null, "", location.pathname + location.search + "#datos"); } } catch(e){}
-let view = "pedidos";
+let view = "pedidos", page = "pedidos";
 let period = "7";
 let monthOffset = 0;
 let config = null, gotConfig = false, inSetup = false, setupStep = 0, setupForced = false;
@@ -999,35 +1011,55 @@ const cfg = (k, d) => (config && config[k] !== undefined && config[k] !== null &
 const ACTIVE = o => o.status !== "anulado" && o.status !== "porcobrar";
 
 /* ---------- vistas ---------- */
+// Direcciones y recuerdos de antes de reorganizar las pestañas («ajustes» era un cajón con todo)
+function normPage(p){
+  if (PAGES[p]) return p;
+  if (p === "ajustes") return ({suministros: lsGet("supTab") === "inv" ? "inventario" : "escandallos", compra:"compra", qr:"qr", equipo:"equipo"})[lsGet("ajTab")] || "qr";
+  return null;
+}
+const pcOffice = () => document.body.classList.contains("pc-office");
+const groupOf = p => (p === "tienda" && pcOffice()) ? "dinero" : PAGES[p].g;
+function groupLast(g){ const l = lsGet("g-"+g); return (g !== "mostrador" && PAGES[l] && groupOf(l) === g) ? l : GROUP_HOME[g]; }
 function pickView(){
-  const h = location.hash.replace("#","");
-  if (VIEWS.includes(h)) return h;
-  const s = lsGet("vista2"); if (VIEWS.includes(s)) return s;
-  if (role === "oficina" || (!role && isDesktop())) return OFFICE.includes(lsGet("oficina")) ? lsGet("oficina") : "caja";
+  const h = normPage(location.hash.replace("#",""));
+  if (h) return h;
+  const s = normPage(lsGet("vista2")); if (s) return s;
+  if (role === "oficina" || (!role && isDesktop())) return groupLast("dinero");
   return role === "barra" ? "barra" : "pedidos";
 }
 // Ordenador: pantalla grande y ratón (no tablet)
 function isDesktop(){ try { return window.innerWidth >= 1100 && matchMedia("(hover:hover) and (pointer:fine)").matches; } catch(e){ return false; } }
 if (role === "oficina") document.body.classList.add("pc-office");
-function setView(v){
+function setView(p){
   if (inSetup) return;
-  view = v;
-  lsSet("vista2", v);
+  p = normPage(p) || "pedidos";
+  const P = PAGES[p], g = groupOf(p);
+  page = p; view = P.v;
+  lsSet("vista2", p); lsSet("g-"+g, p);
   $("#v-setup").hidden = true;
-  VIEWS.forEach(x => { $("#v-"+x).hidden = x !== v; });
-  const inOffice = OFFICE.includes(v);
-  if (inOffice) lsSet("oficina", v);
-  document.querySelectorAll(".tabs [data-view]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.view === v)));
-  $(".tabs [data-office]").setAttribute("aria-pressed", String(inOffice));
-  $("#officeNav").hidden = !inOffice;
-  document.querySelectorAll("#officeNav [data-view]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.view === v)));
-  $("#sub").textContent = SUBS[v];
+  VIEWS.forEach(x => { $("#v-"+x).hidden = x !== view; });
+  if (P.aj) setAjTab(P.aj);
+  if (P.sup) setSupTab(P.sup);
+  $("#v-caja").dataset.part = p === "fuerte" ? "fuerte" : "turno";
+  if (p === "fuerte") $("#f-safe").open = true;
+  document.querySelectorAll(".tabs [data-group]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.group === g)));
+  let n = 0;
+  document.querySelectorAll("#subNav [data-page]").forEach(b => {
+    const on = b.dataset.g === g && (!b.dataset.pc || pcOffice());
+    b.hidden = !on; if (on) n++;
+    b.setAttribute("aria-pressed", String(b.dataset.page === p));
+    if (on && b.dataset.page === p) b.scrollIntoView({block:"nearest", inline:"nearest"});
+  });
+  $("#subNav").hidden = n < 2;
+  $("#modeBar").hidden = g !== "mostrador";
+  syncModeBar();
+  $("#sub").textContent = SUBS[p];
   renderAll();
   keepAwake();
 }
-const goView = v => { if (location.hash !== "#"+v) location.hash = v; else setView(v); };
-document.querySelectorAll(".tabs [data-view], #officeNav [data-view]").forEach(b => b.addEventListener("click", () => goView(b.dataset.view)));
-$(".tabs [data-office]").addEventListener("click", () => { const last = lsGet("oficina"); goView(OFFICE.includes(last) ? last : "caja"); });
+const goView = v => { v = normPage(v) || "pedidos"; if (location.hash !== "#"+v) location.hash = v; else setView(v); };
+document.querySelectorAll("#subNav [data-page]").forEach(b => b.addEventListener("click", () => goView(b.dataset.page)));
+document.querySelectorAll(".tabs [data-group]").forEach(b => b.addEventListener("click", () => goView(groupLast(b.dataset.group))));
 // Ajustes: subpestañas
 let ajTab = ["suministros","compra","qr","equipo"].includes(lsGet("ajTab")) ? lsGet("ajTab") : "suministros";
 /* ---------- carta A4 ---------- */
@@ -1228,8 +1260,8 @@ $("#origenEdit").addEventListener("click", e => {
   const c = cartaCfg(), logos = {...c.logos}; delete logos[d.dataset.logodel];
   setCfg({cartaOrigen: {marcas:c.marcas, logos, filas:c.filas}}, "Logo quitado").then(() => { document.activeElement?.blur?.(); renderOrigen(); });
 });
-document.addEventListener("click", e => { if (!e.target.closest("[data-goins]")) return; lsSet("oficina", "ajustes"); setAjTab("suministros"); setSupTab("esc"); goView("ajustes"); setTimeout(() => { const d = $("#f-adde"); if (d){ d.open = true; d.scrollIntoView({behavior:"smooth", block:"start"}); $("#eName").focus(); } }, 150); });
-$("#goCarta").addEventListener("click", () => { lsSet("oficina", "carta"); goView("carta"); });
+document.addEventListener("click", e => { if (!e.target.closest("[data-goins]")) return; goView("escandallos"); setTimeout(() => { const d = $("#f-adde"); if (d){ d.open = true; d.scrollIntoView({behavior:"smooth", block:"start"}); $("#eName").focus(); } }, 150); });
+$("#goCarta").addEventListener("click", () => goView("carta"));
 function setAjTab(t){
   ajTab = t; lsSet("ajTab", t);
   document.querySelectorAll("#ajNav [data-aj]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.aj === t)));
@@ -1367,7 +1399,7 @@ function pendingForMe(){
 function setMode(m){
   pedMode = m; lsSet("pedMode", m);
   $("#v-pedidos").dataset.mode = m;
-  document.querySelectorAll(".modebar [data-mode]").forEach(b => b.setAttribute("aria-selected", String(b.dataset.mode === m)));
+  syncModeBar();
   $("#cartBar").hidden = !(view === "pedidos" && m === "cobrar" && cartTotal().n > 0);
   window.scrollTo({top:0});
 }
@@ -1376,7 +1408,12 @@ function updateModeBadge(){
   b.hidden = !p.total; b.textContent = p.total;
   b.classList.toggle("hot", p.ready > 0);
 }
-document.querySelectorAll(".modebar [data-mode]").forEach(b => b.addEventListener("click", () => setMode(b.dataset.mode)));
+function syncModeBar(){
+  document.querySelectorAll("#modeBar [data-mode]").forEach(b => b.setAttribute("aria-selected", String(view === "pedidos" && b.dataset.mode === pedMode)));
+  $("#modeBar [data-shop]").setAttribute("aria-selected", String(view === "tienda"));
+}
+document.querySelectorAll("#modeBar [data-mode]").forEach(b => b.addEventListener("click", () => { setMode(b.dataset.mode); if (view !== "pedidos") goView("pedidos"); }));
+$("#modeBar [data-shop]").addEventListener("click", () => goView("tienda"));
 
 /* ---------- pedidos hechos por clientes con el QR ---------- */
 let webOrderId = null;
@@ -1540,7 +1577,7 @@ function topProducts(avail){
 function renderMenuGrid(){
   const box = $("#menuGrid");
   const avail = menu.filter(isOn), off = menu.filter(m => !isOn(m));
-  if (!avail.length){ box.innerHTML = `<div class="empty">${gotMenu ? (menu.length ? 'Todo está marcado como agotado. Actívalo en <b>Ajustes</b>.' : 'La carta está vacía. Añade tus productos en <b>Ajustes</b>.') : 'Cargando la carta…'}</div>`; return; }
+  if (!avail.length){ box.innerHTML = `<div class="empty">${gotMenu ? (menu.length ? 'Todo está marcado como agotado. Actívalo en <b>Almacén → Carta</b>.' : 'La carta está vacía. Añade tus productos en <b>Almacén → Carta</b>.') : 'Cargando la carta…'}</div>`; return; }
   let html = "";
   const groups = mostradorGroups(avail);
   const top = []; // sección «Más pedidos» quitada: despistaba en el mostrador
@@ -1597,7 +1634,7 @@ function renderCart(){
   $("#cashArea").hidden = !!invMode || biz || debe;
   $("#debeArea").hidden = !debe;
   const who = $("#cust").value.trim();
-  $("#debeArea").innerHTML = debe ? (who && !useNumber ? `<b>${esc(who)}</b> se lleva ${eur(t)} sin pagar. Se apunta en Oficina → Caja → Nos deben.` : `Escribe el nombre de quien lo debe.`) : "";
+  $("#debeArea").innerHTML = debe ? (who && !useNumber ? `<b>${esc(who)}</b> se lleva ${eur(t)} sin pagar. Se apunta en Dinero → Caja → Nos deben.` : `Escribe el nombre de quien lo debe.`) : "";
   const owes = who ? debtOf(who) : 0;
   $("#debeWarn").hidden = true; if (false && owes) $("#debeWarn").textContent = `Ojo: ${who} ya os debe ${eurC(owes)}.`;
   $("#bizumArea").hidden = !biz;
@@ -2619,8 +2656,8 @@ function tCard(o){
   </div>`;
 }
 function renderShopBadge(){
-  const n = tPedidos.filter(o => o.status === "nuevo").length, b = $("#shopBadge");
-  b.hidden = !n; b.textContent = n;
+  const n = tPedidos.filter(o => o.status === "nuevo").length;
+  [$("#shopBadge"), $("#shopBadge2")].forEach(b => { b.hidden = !n; b.textContent = n; });
 }
 function renderTienda(){
   renderShopBadge();
@@ -2871,7 +2908,7 @@ function renderSupply(){
     }
     const week = st.perDay*cfg("diasSemana", 6); // una semana de apertura
     if (st.left === null){
-      return {order:2, html:sug("", `${esc(ins.nombre)}: ${fmtUnits(st.perDay, u)} al día`, `Para una semana de apertura necesitas unos ${fmtUnits(week, u)}. Cuenta el stock en Ajustes y te diré cuántos días te quedan.`)};
+      return {order:2, html:sug("", `${esc(ins.nombre)}: ${fmtUnits(st.perDay, u)} al día`, `Para una semana de apertura necesitas unos ${fmtUnits(week, u)}. Cuenta el stock en Almacén → Inventario y te diré cuántos días te quedan.`)};
     }
     const daysLeft = st.perDay > 0 ? st.left/st.perDay : Infinity;
     const buy = Math.max(0, week + min - st.left);
@@ -2885,10 +2922,10 @@ function renderSupply(){
   rows.filter(r => !r.nodata).forEach(r => out.push(r.html));
   if (nod.length) out.push(sug("", `Sin datos de consumo todavía (${nod.length})`, `${nod.map(r => esc(r.nodata)).join(", ")}. Tras cerrar la caja de un día con ventas calcularé cuánto gastáis de cada uno.`));
   const noRecipe = menu.filter(m => isOn(m) && !Object.values(m.receta||{}).some(v => Number(v) > 0));
-  if (noRecipe.length) out.push(sug("warn", "Productos sin receta", `${noRecipe.map(m => esc(m.name)).join(", ")}. Añade su receta en Ajustes para que cuenten en las compras.`));
+  if (noRecipe.length) out.push(sug("warn", "Productos sin receta", `${noRecipe.map(m => esc(m.name)).join(", ")}. Añade su receta en Almacén → Carta para que cuenten en las compras.`));
   const nBuy = out.filter(h => /class="sug (warn|alert)"/.test(h)).length;
   $("#supplyCount").textContent = nBuy ? `${nBuy} por comprar` : "";
-  $("#supplySugs").innerHTML = out.join("") || `<div class="empty">Añade suministros y recetas en Ajustes para ver aquí qué comprar.</div>`;
+  $("#supplySugs").innerHTML = out.join("") || `<div class="empty">Añade suministros (Almacén → Escandallos) y recetas (Almacén → Carta) para ver aquí qué comprar.</div>`;
 }
 
 /* ---------- ajustes ---------- */
@@ -3225,7 +3262,7 @@ function renderPrices(){
   const rows = priceRows(), fpu = fixedPerUnit();
   const withCost = rows.filter(r => r.cost !== null);
   const out = [];
-  if (!withCost.length) out.push(sug("", "Pon el precio de tus suministros", "En Ajustes → Suministros indica cuánto trae cada paquete y lo que cuesta. Con eso calculo el coste de cada bebida y qué precio le conviene."));
+  if (!withCost.length) out.push(sug("", "Pon el precio de tus suministros", "En Almacén → Escandallos indica cuánto trae cada paquete y lo que cuesta. Con eso calculo el coste de cada bebida y qué precio le conviene."));
   else {
     const raise = withCost.filter(r => r.raise);
     if (raise.length) out.push(sug("warn", `${raise.length} ${raise.length === 1 ? "producto se queda corto" : "productos se quedan cortos"} de precio`, raise.map(r => `${esc(r.m.name)}: de ${eur(r.price)} a ${eur(r.sugg)}`).join(" · ")));
@@ -3372,7 +3409,7 @@ function informeInterno(){
   // Lo que conviene vigilar
   const futuro = [];
   const sinContar = insumos.filter(i => insState(i).usedBy && (i.stockContado === null || i.stockContado === undefined));
-  futuro.push(["Stock", "Contad el stock de cada suministro al menos una vez por semana (Ajustes → Suministros → Inventario). Sin conteo, la lista de la compra pide de más.", sinContar.length ? `Sin contar: ${sinContar.map(i => i.nombre).join(", ")}` : "Todo contado"]);
+  futuro.push(["Stock", "Contad el stock de cada suministro al menos una vez por semana (Almacén → Inventario). Sin conteo, la lista de la compra pide de más.", sinContar.length ? `Sin contar: ${sinContar.map(i => i.nombre).join(", ")}` : "Todo contado"]);
   const sinPrecio = insumos.filter(i => insState(i).usedBy && !costUnit(i));
   futuro.push(["Escandallos", "Cada vez que cambie el precio de algo, actualizad lo pagado y lo que trae: la app recalcula el coste de las bebidas y avisa si toca subir precios.", sinPrecio.length ? `Sin precio: ${sinPrecio.map(i => i.nombre).join(", ")}` : "Todos con precio"]);
   const sinReceta = menu.filter(m => isOn(m) && !Object.values(m.receta||{}).some(v => Number(v) > 0));
@@ -3465,8 +3502,15 @@ function renderAll(){
   else if (view === "datos"){ renderDatos(); renderBox(); renderDur(); renderSlow(); renderCombos(); }
   else renderAjustes();
   updateBanner();
+  renderLowBadge();
   $("#v-pedidos").dataset.mode = pedMode;
   $("#cartBar").hidden = !(view === "pedidos" && pedMode === "cobrar" && cartTotal().n > 0);
+}
+// Aviso en «Almacén»: cuántos suministros están por debajo de su mínimo
+function renderLowBadge(){
+  let n = 0;
+  try { n = insumos.filter(i => { const st = insState(i); return st.usedBy && st.left !== null && st.left <= (Number(i.minimo)||0); }).length; } catch(e){}
+  const b = $("#lowBadge"); b.hidden = !n; b.textContent = n;
 }
 function updateBanner(){
   const open = !!(shift && shift.open);
@@ -3475,7 +3519,7 @@ function updateBanner(){
   else if (open && dayKey(shift.openedAt) !== dayKey()){ txt = `La caja sigue abierta desde el ${dmy(shift.openedAt)}. Ciérrala para que cada día salga bien en los números.`; btn = "Ir a Caja"; }
   $("#shiftBanner").hidden = !txt;
   $("#bannerTxt").textContent = txt; $("#bannerBtn").textContent = btn;
-  const ROLES = {caja:"el Mostrador (pedidos, cobro y entrega)", barra:"la Cafetera (preparar bebidas)", ambos:"todo: Mostrador y Cafetera", oficina:"la Oficina desde casa (sin avisos sonoros)"};
+  const ROLES = {caja:"el Mostrador (pedidos, cobro y entrega)", barra:"la Cafetera (preparar bebidas)", ambos:"todo: Mostrador y Cafetera", oficina:"la gestión desde casa: Dinero y Almacén (sin avisos sonoros)"};
   $("#cupsToggle").setAttribute("aria-pressed", String(vasosCaja()));
   $("#autoToggle").setAttribute("aria-pressed", String(autoReady()));
   if (document.activeElement !== $("#jugG")) $("#jugG").value = jugCap().g;
@@ -3532,12 +3576,12 @@ function renderSetup(){
   let body = "";
   if (cur === 0){
     body = `<div class="card"><h2>¿Para qué es este dispositivo?</h2>
-      <p class="hint">Así se abre directo en la pantalla que necesitas. Lo puedes cambiar en Ajustes.</p>
+      <p class="hint">Así se abre directo en la pantalla que necesitas. Lo puedes cambiar en Ajustes (⚙) → Equipo.</p>
       <div class="role">
         <button type="button" data-role="caja" aria-pressed="${tmpRole === "caja"}"><b>Mostrador</b><span>El móvil: tomar pedidos, cobrar y entregar</span></button>
         <button type="button" data-role="barra" aria-pressed="${tmpRole === "barra"}"><b>Cafetera</b><span>El iPad: ver y preparar cafés y matcha</span></button>
         <button type="button" data-role="ambos" aria-pressed="${tmpRole === "ambos"}"><b>Las dos</b><span>Un solo dispositivo para todo</span></button>
-        <button type="button" data-role="oficina" aria-pressed="${tmpRole === "oficina"}"><b>Oficina</b><span>El ordenador de casa: caja, carta, gastos y números, sin avisos sonoros</span></button>
+        <button type="button" data-role="oficina" aria-pressed="${tmpRole === "oficina"}"><b>Gestión</b><span>El ordenador de casa: dinero, carta y almacén, sin avisos sonoros</span></button>
       </div></div>`;
   } else if (cur === 1){
     const list = sortMenu(menu);
@@ -3563,7 +3607,7 @@ function renderSetup(){
         <div class="field"><label for="q5">Café por cold brew (g)</label><input type="text" inputmode="decimal" id="q5" value="${fmtIn(rv("cold-brew","cafe",20))}"></div>
         <div class="field"><label for="q6">Café por batch (g)</label><input type="text" inputmode="decimal" id="q6" value="${fmtIn(rv("batch","cafe",15))}"></div>
       </div>
-      <p class="hint">Cada bebida gasta además un vaso (frío o caliente) y una tapa. Lo fino, producto a producto, está en Ajustes → Receta.</p></div>`;
+      <p class="hint">Cada bebida gasta además un vaso (frío o caliente) y una tapa. Lo fino, producto a producto, está en Almacén → Carta → Editar.</p></div>`;
   } else if (cur === 3){
     const ins = insumos.slice().sort((a,b) => String(a.nombre).localeCompare(String(b.nombre)));
     body = `<div class="card"><h2>¿Cuánto tenéis ahora?</h2>
@@ -3574,7 +3618,7 @@ function renderSetup(){
           <div class="field"><label for="sk-${i.id}">Un paquete trae</label><input type="text" inputmode="decimal" id="sk-${i.id}" value="${fmtIn(i.paquete)}"></div>
           <div class="field"><label for="sp2-${i.id}">Precio paquete (€)</label><input type="text" inputmode="decimal" id="sp2-${i.id}" value="${fmtIn(i.precioPaquete)}"></div>
           <div class="field"><label for="sm-${i.id}">Avisar con menos de</label><input type="text" inputmode="decimal" id="sm-${i.id}" value="${fmtIn(i.minimo)}"></div>
-        </div></div>`).join("") : `<div class="empty">Sin suministros. Puedes añadirlos en Ajustes.</div>`}</div></div>`;
+        </div></div>`).join("") : `<div class="empty">Sin suministros. Puedes añadirlos en Almacén → Escandallos.</div>`}</div></div>`;
   } else if (cur === 4){
     body = `<div class="card"><h2>Gastos fijos al mes</h2>
       <p class="hint">Lo que pagáis cada mes, vendáis o no. Sirve para calcular el beneficio y cuánto hay que vender al día. Deja vacío lo que no tengáis.</p>
@@ -3618,7 +3662,7 @@ function setupErr(msg){ const e = $("#setupErr"); e.textContent = msg; e.hidden 
 async function saveStep(cur){
   if (cur === 0){
     if (!tmpRole){ setupErr("Elige para qué es este dispositivo."); return false; }
-    role = tmpRole; lsSet("rol", role); lsSet("vista2", role === "barra" ? "barra" : role === "oficina" ? (OFFICE.includes(lsGet("oficina")) ? lsGet("oficina") : "caja") : "pedidos");
+    role = tmpRole; lsSet("rol", role); lsSet("vista2", role === "barra" ? "barra" : role === "oficina" ? groupLast("dinero") : "pedidos");
     document.body.classList.toggle("pc-office", role === "oficina");
     if (setupMode === "auto" && role === "barra" && !(config && config.setupDone)) barraOnly = true;
     return true;
@@ -3693,7 +3737,7 @@ $("#setupBox").addEventListener("click", async e => {
   if (r){ tmpRole = r.dataset.role; $("#setupBox").querySelectorAll("[data-role]").forEach(b => b.setAttribute("aria-pressed", String(b === r))); setupErr(""); return; }
   if (e.target.closest("#sBack")){ setupStep = Math.max(0, setupStep-1); renderSetup(); window.scrollTo(0,0); return; }
   if (e.target.closest("#sCancel")){ endSetup(); return; }
-  if (e.target.closest("#sSkip")){ lsSet("setupSkip", "1"); endSetup(); toast("Puedes terminar la configuración en Ajustes"); return; }
+  if (e.target.closest("#sSkip")){ lsSet("setupSkip", "1"); endSetup(); toast("Puedes terminar la configuración en Ajustes (⚙)"); return; }
   const nx = e.target.closest("#sNext"); if (!nx) return;
   if (!db){ setupErr("Sin conexión con la base de datos."); return; }
   const steps = setupSteps(), cur = steps[setupStep];
@@ -3782,6 +3826,7 @@ function setupInstall(){
   });
   $("#installNo").addEventListener("click", () => { bar.hidden = true; lsSet("installNo", "1"); });
 }
+setupInstall();
 // Compartir la página de pedidos de los clientes (Ajustes → Equipo)
 const clientUrl = shop => new URL("pedir.html" + (shop ? "#tienda" : ""), location.href).href;
 $("#shareUrl").textContent = clientUrl(false);
@@ -3898,7 +3943,6 @@ boot();
 // Actualizaciones: al volver a la app busca versión nueva; si la hay, recarga sola cuando no estáis a mitad de algo
 if ("serviceWorker" in navigator) addEventListener("load", () => {
   const hadCtrl = !!navigator.serviceWorker.controller;
-  setupInstall();
   navigator.serviceWorker.register("sw.js", {updateViaCache: "none"}).then(reg => {
     document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") reg.update().catch(() => {}); });
     setInterval(() => reg.update().catch(() => {}), 30*60000);
