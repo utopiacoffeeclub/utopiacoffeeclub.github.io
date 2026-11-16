@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Firma de correo · Utopía</title>
+<style>
+@font-face{font-family:Bebas;src:url(../fonts/bebas.woff2)}
+@font-face{font-family:Barlow;src:url(../fonts/barlow-400.woff2)}
+@font-face{font-family:Barlow;src:url(../fonts/barlow-600.woff2);font-weight:600}
+:root{--bg:#f1e9db;--ink:#5e0f1c;--text:#3b0a12;--muted:#8a4a52;--line:#dcc6bd}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 Barlow,Arial,sans-serif;padding:32px max(16px,env(safe-area-inset-right,0px)) 48px max(16px,env(safe-area-inset-left,0px))}
+main{max-width:640px;margin:0 auto;display:grid;gap:22px}
+h1{font-family:Bebas,Impact,sans-serif;font-weight:400;color:var(--ink);font-size:2.6rem;letter-spacing:.05em;margin:0;line-height:1}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px;overflow-x:auto}
+button{font:600 1.05rem Barlow,Arial,sans-serif;background:var(--ink);color:#f8f1e6;border:0;border-radius:12px;padding:14px 22px;cursor:pointer}
+ol{margin:0;padding-left:1.3em;display:grid;gap:6px}
+.ok{color:#2f6b3a;font-weight:600}
+small{color:var(--muted)}
+</style>
+</head>
+<body>
+<main>
+  <h1>Firma de correo</h1>
+
+  <div class="card" id="firma"><table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;font-family:Arial,Helvetica,sans-serif">
+    <tr><td style="padding:0 0 6px 0"><a href="https://utopiacoffeeclub.github.io/pedir.html" style="text-decoration:none"><img src="https://utopiacoffeeclub.github.io/firma/utopia-firma.gif" width="265" height="100" alt="Utopía Coffee Club" style="display:block;border:0;width:265px;height:100px"></a></td></tr>
+    <tr><td style="border-top:2px solid #5e0f1c;padding:10px 0 0 0;font-size:14px;line-height:21px;color:#3b0a12">
+      <b style="color:#5e0f1c">Café de especialidad para llevar</b> · Valladolid<br>
+      <a href="https://utopiacoffeeclub.github.io/pedir.html" style="color:#5e0f1c;font-weight:bold;text-decoration:none">☕ Pide desde el móvil</a>
+      &nbsp;·&nbsp;
+      <a href="https://utopiacoffeeclub.github.io/pedir.html#tienda" style="color:#5e0f1c;font-weight:bold;text-decoration:none">Café en grano y chocolate</a><br>
+      <a href="mailto:utopiacoffeeclub@gmail.com" style="color:#8a4a52;text-decoration:none">utopiacoffeeclub@gmail.com</a>
+    </td></tr>
+  </table></div>
+
+  <div><button type="button" id="copy">Copiar firma</button> <span id="msg" class="ok" role="status"></span></div>
+
+  <ol>
+    <li>Abre esta página en el ordenador y pulsa <b>Copiar firma</b>.</li>
+    <li>En Gmail (cuenta utopiacoffeeclub): ⚙ → <b>Ver todos los ajustes</b> → pestaña <b>General</b> → <b>Firma</b> → <b>Crear nueva</b>, llámala «Utopía».</li>
+    <li>Pega en el recuadro (Ctrl+V). Debe verse el grano girando.</li>
+    <li>Debajo, en <b>Valores predeterminados de firma</b>, elige «Utopía» para correos nuevos y para respuestas.</li>
+    <li>Baja del todo y pulsa <b>Guardar cambios</b>.</li>
+  </ol>
+  <small>Si el botón no copia, selecciona la firma con el ratón (de la imagen a la última línea), cópiala y pégala igual.</small>
+</main>
+<script>
+document.getElementById("copy").addEventListener("click", async () => {
+  const el = document.getElementById("firma"), msg = document.getElementById("msg");
+  const html = el.innerHTML, text = el.innerText;
+  try {
+    await navigator.clipboard.write([new ClipboardItem({"text/html": new Blob([html], {type:"text/html"}), "text/plain": new Blob([text], {type:"text/plain"})})]);
+    msg.textContent = "Copiada: ahora pégala en Gmail";
+  } catch(e){
+    const r = document.createRange(); r.selectNodeContents(el);
+    const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+    try { document.execCommand("copy"); msg.textContent = "Copiada: ahora pégala en Gmail"; } catch(_) { msg.textContent = "Está seleccionada: pulsa Ctrl+C"; }
+  }
+});
+</script>
+</body>
+</html>
