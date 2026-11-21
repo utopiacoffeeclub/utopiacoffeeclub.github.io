@@ -452,6 +452,16 @@ table.t tr:last-child td{border-bottom:0}
 /* Preparación */
 .pend.wrap{flex-wrap:wrap}
 .pend.unpaid{border:2px solid var(--danger)}
+.unpaidbox #unpaidTot{color:var(--danger);font-weight:700}
+.pend.who{cursor:pointer}
+.pend.who .n{color:var(--muted);font-size:.85rem;font-weight:600}
+.upay{flex-basis:100%;display:grid;gap:10px;border-top:1px dashed var(--line);padding-top:10px;margin-top:2px}
+.upay .ol{display:grid;gap:4px}
+.upay label.ord{display:flex;gap:10px;align-items:flex-start;font-size:.92rem;line-height:1.3;padding:4px 0}
+.upay label.ord input{width:22px;height:22px;flex:none;margin:0;accent-color:var(--ink)}
+.upay label.ord span{flex:1;min-width:0;overflow-wrap:anywhere}
+.upay label.ord b{font-family:var(--display);font-weight:400;font-size:1.2rem;color:var(--ink)}
+.upay .change b{font-size:2.1rem}
 .pend .amt{font-family:var(--display);font-size:1.35rem;color:var(--ink);letter-spacing:.03em}
 .pend .acts{display:flex;gap:8px;flex-wrap:wrap;flex-basis:100%}
 .pend .acts .btn{flex:1}
@@ -517,8 +527,8 @@ table.t tr:last-child td{border-bottom:0}
     <div class="banner off" id="outboxBanner" role="status" hidden></div>
 
     <section id="unpaidSec" hidden>
-      <div class="sec-h"><h2>Sin cobrar</h2><span class="count" id="unpaidCount"></span><span class="mins aside" id="unpaidTot"></span></div>
-      <div class="pending" id="unpaidList"></div>
+      <details class="fold unpaidbox" id="f-unpaid"><summary class="sec-h"><h2>Sin cobrar</h2><span class="count" id="unpaidCount"></span><span class="mins aside" id="unpaidTot"></span></summary>
+      <div class="pending" id="unpaidList" style="margin-top:8px"></div></details>
     </section>
 
     <section id="readySec" class="m-entregar">
@@ -916,7 +926,7 @@ table.t tr:last-child td{border-bottom:0}
           <div class="field"><label for="jugP">Jarra pequeña: cafés que salen</label><input type="number" id="jugP" min="1" max="6" step="1" inputmode="numeric"></div>
         </div>
         <div class="card" id="installHelp" hidden style="display:grid;gap:6px"></div>
-        <div class="row"><button type="button" class="btn" id="changeRole">Cambiar uso de este dispositivo</button><button type="button" class="btn" id="redoSetup">Repetir configuración inicial</button><button type="button" class="btn primary" id="installBtn2">Instalar la app</button><button type="button" class="btn" id="forceUpdate">Actualizar la app</button><span class="hint" id="appVer" style="align-self:center">Versión 66</span><button type="button" class="btn ghost danger" id="logoutBtn">Cerrar sesión</button></div>
+        <div class="row"><button type="button" class="btn" id="changeRole">Cambiar uso de este dispositivo</button><button type="button" class="btn" id="redoSetup">Repetir configuración inicial</button><button type="button" class="btn primary" id="installBtn2">Instalar la app</button><button type="button" class="btn" id="forceUpdate">Actualizar la app</button><span class="hint" id="appVer" style="align-self:center">Versión 67</span><button type="button" class="btn ghost danger" id="logoutBtn">Cerrar sesión</button></div>
         <p class="legal">Esta app organiza pedidos, caja y números internos. No emite tickets ni facturas: seguid usando vuestro sistema de tickets y consultad con la gestoría qué programa de facturación necesitáis por la normativa Veri*factu.</p>
         <div style="border-top:1px solid var(--line);padding-top:12px;display:grid;gap:8px">
           <b>Compartir la app de pedidos de los clientes</b>
@@ -1008,6 +1018,16 @@ const lsGet = k => { try { return localStorage.getItem(k); } catch(e){ return nu
 const lsSet = (k,v) => { try { localStorage.setItem(k, v); } catch(e){} };
 let role = lsGet("rol");            // "caja" | "barra" | "ambos" (por dispositivo)
 const cfg = (k, d) => (config && config[k] !== undefined && config[k] !== null && config[k] !== "") ? Number(config[k]) : d;
+// Listas que se repintan con cada cambio: si el HTML nuevo es igual al que ya hay, no se toca la pantalla
+(() => {
+  const d = Object.getOwnPropertyDescriptor(Element.prototype, "innerHTML");
+  ["menuGrid","pendList","readyList","webList","doneList","barGrid","barStock","unpaidList"].forEach(id => {
+    const el = document.getElementById(id); if (!el) return; let last = null;
+    Object.defineProperty(el, "innerHTML", {configurable:true, get(){ return d.get.call(this); }, set(h){ h = String(h); if (h === last) return; last = h; d.set.call(this, h); }});
+    // Si alguien toca dentro (botones desactivados, «¿seguro?»…), el siguiente repintado se hace siempre
+    ["click","change","input"].forEach(t => el.addEventListener(t, () => { last = null; }, true));
+  });
+})();
 const ACTIVE = o => o.status !== "anulado" && o.status !== "porcobrar";
 
 /* ---------- vistas ---------- */
@@ -1669,29 +1689,87 @@ $("#quickCash").addEventListener("click", e => {
 /* Pedidos enviados a la cafetera sin cobrar: se cobran aquí cuando el cliente paga (aunque sea otro día) */
 const unpaidOrders = () => orders.filter(o => o.pay === "pendiente" && o.status !== "anulado" && o.status !== "porcobrar").sort((a,b) => a.createdAt - b.createdAt);
 const ST_TXT = {nuevo:"en cafetera", listo:"para entregar", entregado:"entregado", anulado:"anulado"};
-function renderUnpaid(){
-  const list = unpaidOrders();
-  $("#unpaidSec").hidden = !list.length;
-  $("#unpaidCount").textContent = list.length || "";
-  $("#unpaidTot").textContent = list.length ? eurC(list.reduce((a,o) => a + cents(o.total), 0)) : "";
-  $("#unpaidList").innerHTML = list.map(o => `<div class="pend wrap unpaid">
-    <span class="num">#${pad(o.num)}</span><span class="pname">${esc(o.customer)}</span>
-    <span class="mins">${o.day === dayKey() ? hhmm(o.createdAt) : dmy(o.createdAt)} · ${ST_TXT[o.status] || ""}</span><span class="amt">${eur(o.total)}</span>
-    <div class="mins" style="flex-basis:100%">${(o.items||[]).map(i => `${i.qty > 1 ? i.qty + "× " : ""}${esc(i.name)}`).join(", ")}</div>
-    <div class="acts"><button type="button" class="btn deliver" data-charge="${o.id}" data-m="efectivo">Cobrar · efectivo</button>${bizumNum() ? `<button type="button" class="btn deliver" data-charge="${o.id}" data-m="bizum">Cobrar · Bizum</button>` : ""}</div>
-  </div>`).join("");
+// Agrupados por persona: un cliente con varios pedidos sin pagar los paga todos de una vez
+const whoKey = n => String(n||"").trim().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "") || "?";
+let upOpen = null, upPay = "efectivo", upRecv = "";
+const upOff = new Set();   // pedidos desmarcados (no se cobran ahora)
+function unpaidGroups(){
+  const g = new Map();
+  unpaidOrders().forEach(o => { const k = whoKey(o.customer); if (!g.has(k)) g.set(k, {k, name:o.customer, list:[]}); g.get(k).list.push(o); });
+  return [...g.values()].map(x => ({...x, tc: x.list.reduce((a,o) => a + cents(o.total), 0)})).sort((a,b) => b.tc - a.tc);
 }
-async function chargeOrder(o, m, btn){
-  const inShift = !!(shift && shift.open && (o.createdAt||0) >= shift.openedAt), now = Date.now();
-  if (m === "efectivo" && !(shift && shift.open)){ toast("Abre la caja primero: el dinero tiene que entrar en el cuadre de hoy."); return; }
-  confirmTap(btn, "ch" + o.id + m, `¿Cobrado ${eur(o.total)}?`, async () => {
-    try {
-      await writeOrQueue({k:"update", col:"orders", id:o.id, data:{pay:m, metodo:m, received:m === "efectivo" ? o.total : o.total, change:0, paidAt:now}});
-      // Si el pedido es de una caja ya cerrada, el efectivo entra hoy como entrada para que el cajón cuadre
-      if (m === "efectivo" && !inShift) await db.doc("turno/actual").update({movs:[...(Array.isArray(shift.movs) ? shift.movs : []), {t:now, tipo:"entrada", importe:o.total, concepto:`Cobro pendiente #${pad(o.num)}: ${o.customer}`, cobro:true}]});
-      toast(`Cobrado a ${o.customer} · ${eur(o.total)}${m === "bizum" ? " por Bizum" : ""}`);
-    } catch(err){ toast(saveErrMsg(err, "No se pudo guardar.")); }
-  });
+function upSelected(gr){ return gr.list.filter(o => !upOff.has(o.id)); }
+function renderUnpaid(){
+  const el = $("#unpaidList"), a = document.activeElement;
+  const groups = unpaidGroups(), list = unpaidOrders();
+  $("#unpaidSec").hidden = !list.length;
+  $("#unpaidCount").textContent = groups.length ? `${groups.length} ${groups.length === 1 ? "persona" : "personas"}` : "";
+  $("#unpaidTot").textContent = list.length ? eurC(list.reduce((s,o) => s + cents(o.total), 0)) : "";
+  if (upOpen && !groups.some(g => g.k === upOpen)) upOpen = null;
+  if (a && a.tagName === "INPUT" && a.type !== "checkbox" && el.contains(a)) return; // está tecleando lo que le dan
+  if (!bizumNum() && upPay === "bizum") upPay = "efectivo";
+  el.innerHTML = groups.map(g => {
+    const open = upOpen === g.k, sel = upSelected(g), tc = sel.reduce((s,o) => s + cents(o.total), 0);
+    const last = g.list[g.list.length - 1];
+    return `<div class="pend wrap unpaid who" data-who="${esc(g.k)}">
+      <span class="pname">${esc(g.name)} <span class="n">· ${g.list.length} ${g.list.length === 1 ? "pedido" : "pedidos"}</span></span>
+      <span class="mins">${last.day === dayKey() ? hhmm(last.createdAt) : dmy(last.createdAt)}</span><span class="amt">${eurC(g.tc)}</span>
+      ${open ? `<div class="upay">
+        <div class="ol">${g.list.map(o => `<label class="ord"><input type="checkbox" data-upsel="${o.id}" ${upOff.has(o.id) ? "" : "checked"}>
+          <span>#${pad(o.num)} · ${o.day === dayKey() ? "hoy " + hhmm(o.createdAt) : dmy(o.createdAt)} · ${ST_TXT[o.status] || ""}<br><span class="mins">${(o.items||[]).map(i => `${i.qty > 1 ? i.qty + "× " : ""}${esc(i.name)}`).join(", ")}</span></span><b>${eur(o.total)}</b></label>`).join("")}</div>
+        <div class="seg" data-uppay>${`<button type="button" data-upm="efectivo" aria-pressed="${upPay === "efectivo"}">Efectivo</button>`}${bizumNum() ? `<button type="button" data-upm="bizum" aria-pressed="${upPay === "bizum"}">Bizum</button>` : ""}</div>
+        ${upPay === "efectivo" ? `<div class="field"><label for="upRecv">Te da (efectivo)</label>
+          <input type="text" id="upRecv" inputmode="decimal" autocomplete="off" placeholder="Importe exacto" value="${esc(upRecv)}">
+          <div class="quick" id="upQuick"></div></div>
+          <div class="change" id="upChange"><span>Vueltas</span><b>0,00 €</b></div>`
+        : `<div class="bizumbox">Bizum de <b>${eurC(tc)}</b> al <b>${fmtTel(bizumNum())}</b>. Pulsa cobrar cuando te llegue la notificación del banco.</div>`}
+        <button type="button" class="btn primary" data-upcharge="${esc(g.k)}" ${tc ? "" : "disabled"} style="padding:14px;font-size:1.05rem">${tc ? `Cobrar ${eurC(tc)}${sel.length > 1 ? ` · ${sel.length} pedidos` : ""}` : "Marca algún pedido"}</button>
+      </div>` : ""}
+    </div>`;
+  }).join("");
+  upCash();
+}
+// Calculadora: vueltas al momento, sin repintar la lista
+function upCash(){
+  const g = unpaidGroups().find(x => x.k === upOpen); if (!g || upPay !== "efectivo" || !$("#upChange")) return;
+  const tc = upSelected(g).reduce((s,o) => s + cents(o.total), 0), v = parseMoney(upRecv), typed = upRecv.trim() !== "";
+  const r = isNaN(v) ? tc : cents(v), opts = [];
+  if (tc > 0) [100, 500, 1000, 2000, 5000].forEach(step => { const x = Math.ceil(tc/step)*step; if (x > tc && !opts.includes(x)) opts.push(x); });
+  $("#upQuick").innerHTML = tc > 0 ? `<button type="button" data-upcash="exact" aria-pressed="${!typed}">Justo</button>` + opts.map(x => `<button type="button" data-upcash="${x}" aria-pressed="${typed && r === x}">${eurC(x)}</button>`).join("") : "";
+  const ch = r - tc, box = $("#upChange");
+  box.classList.toggle("short", ch < 0);
+  box.firstElementChild.textContent = ch < 0 ? "Faltan" : "Vueltas";
+  box.lastElementChild.textContent = eurC(Math.abs(ch));
+}
+$("#unpaidList").addEventListener("input", e => { if (e.target.id === "upRecv"){ upRecv = e.target.value; upCash(); } });
+$("#unpaidList").addEventListener("change", e => { const c = e.target.closest("[data-upsel]"); if (!c) return; c.checked ? upOff.delete(c.dataset.upsel) : upOff.add(c.dataset.upsel); renderUnpaid(); });
+$("#unpaidList").addEventListener("click", e => {
+  if (e.target.closest("label.ord, input")) return;
+  const m = e.target.closest("[data-upm]"), q = e.target.closest("[data-upcash]"), go = e.target.closest("[data-upcharge]"), w = e.target.closest("[data-who]");
+  if (m){ upPay = m.dataset.upm; renderUnpaid(); return; }
+  if (q){ upRecv = q.dataset.upcash === "exact" ? "" : (Number(q.dataset.upcash)/100).toFixed(2).replace(".", ","); const i = $("#upRecv"); if (i) i.value = upRecv; upCash(); return; }
+  if (go){ const g = unpaidGroups().find(x => x.k === go.dataset.upcharge); if (g) chargeGroup(g, go); return; }
+  if (e.target.closest(".upay")) return;
+  if (w){ upOpen = upOpen === w.dataset.who ? null : w.dataset.who; upRecv = ""; upOff.clear(); renderUnpaid(); if (upOpen) setTimeout(() => $(`[data-who="${CSS.escape(upOpen)}"]`)?.scrollIntoView({behavior:"smooth", block:"nearest"}), 30); }
+});
+async function chargeGroup(g, btn){
+  const sel = upSelected(g); if (!sel.length) return;
+  const m = upPay, tc = sel.reduce((s,o) => s + cents(o.total), 0);
+  if (m === "efectivo"){
+    if (!(shift && shift.open)){ toast("Abre la caja primero: el dinero tiene que entrar en el cuadre de hoy."); return; }
+    const v = parseMoney(upRecv); if (upRecv.trim() && !isNaN(v) && cents(v) < tc){ toast(`Faltan ${eurC(tc - cents(v))}`); return; }
+  }
+  btn.disabled = true;
+  const now = Date.now(), outShift = m === "efectivo" ? sel.filter(o => !((o.createdAt||0) >= shift.openedAt)) : [];
+  try {
+    for (const o of sel) await writeOrQueue({k:"update", col:"orders", id:o.id, data:{pay:m, metodo:m, received:o.total, change:0, paidAt:now}});
+    // Lo de cajas ya cerradas entra hoy como una sola entrada, para que el cajón cuadre
+    if (outShift.length){ const imp = outShift.reduce((s,o) => s + cents(o.total), 0)/100;
+      await db.doc("turno/actual").update({movs:[...(Array.isArray(shift.movs) ? shift.movs : []), {t:now, tipo:"entrada", importe:imp, concepto:`Cobro pendiente de ${g.name}: ${outShift.map(o => "#" + pad(o.num)).join(", ")}`, cobro:true}]}); }
+    const ch = m === "efectivo" && upRecv.trim() ? cents(parseMoney(upRecv)) - tc : 0;
+    toast(`Cobrado a ${g.name} · ${eurC(tc)}${m === "bizum" ? " por Bizum" : ch > 0 ? ` · vueltas ${eurC(ch)}` : ""}`);
+    upOpen = null; upRecv = ""; upOff.clear(); renderUnpaid();
+  } catch(err){ btn.disabled = false; toast(saveErrMsg(err, "No se pudo guardar.")); }
 }
 /* Pedidos finalizados de hoy (y de la caja abierta): para corregir un cobro, deshacer una entrega o anular */
 let finOpen = null;
@@ -3533,7 +3611,14 @@ function updateBanner(){
   $("#roleTxt").textContent = role ? `Este dispositivo está configurado para ${ROLES[role]}.` : "Este dispositivo aún no tiene un uso elegido.";
 }
 // No repintamos la zona donde alguien está escribiendo, para no perder lo tecleado
+// Varios avisos seguidos de la base de datos (pedido, turno, eco del tiempo real…) se juntan en un único repintado
+let softQueued = false;
 function softRender(){
+  if (softQueued) return;
+  softQueued = true;
+  (document.hidden ? setTimeout : requestAnimationFrame)(() => { softQueued = false; softRenderNow(); });
+}
+function softRenderNow(){
   if (inSetup) return;
   const a = document.activeElement;
   const typing = a && (a.tagName === "INPUT" || a.tagName === "SELECT");
@@ -3788,7 +3873,7 @@ $("#cupsToggle").addEventListener("click", async () => {
 });
 $("#changeRole").addEventListener("click", () => startSetup("role"));
 let pendingRender = false;
-document.addEventListener("focusout", () => setTimeout(() => { if (pendingRender){ pendingRender = false; softRender(); } }, 50));
+document.addEventListener("focusout", () => setTimeout(() => { if (pendingRender){ pendingRender = false; softRenderNow(); } }, 50));
 const lateWarned = new Set();
 setInterval(() => {
   document.querySelectorAll(".mins[data-t]").forEach(el => el.textContent = minsTxt(Number(el.dataset.t)));
@@ -3904,7 +3989,7 @@ async function boot(){
     prevStatus = new Map(orders.map(o => [o.id, o.status]));
     [...ticks].forEach(k => { if (prevStatus.get(k.split(":")[0]) !== "nuevo") ticks.delete(k); });
     if (!snap.metadata.fromCache){ gotOrders = true; primed = true; if (!pruned){ pruned = true; prune(); } }
-    settle(); softRender();
+    settle();
   }, err => { clearTimeout(slow); setNotice("Se perdió la conexión con las comandas. Recarga la página.", true); });
 
   db.doc("turno/actual").onSnapshot(snap => {

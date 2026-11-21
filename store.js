@@ -5,6 +5,16 @@
   const CFG = window.UTOPIA_CONFIG || {};
   const $ = s => document.querySelector(s);
   const clone = v => JSON.parse(JSON.stringify(v));
+  // Comparación que no depende del orden de las claves (la base de datos las devuelve ordenadas a su manera)
+  const stable = v => v === undefined ? "~" : JSON.stringify(v, (k, x) => x && typeof x === "object" && !Array.isArray(x) ? Object.keys(x).sort().reduce((o, kk) => (o[kk] = x[kk], o), {}) : x);
+  const same = (a, b) => stable(a) === stable(b);
+  // Igual que jsonb_deep_merge del servidor: los objetos se mezclan, lo demás se sustituye
+  function deepMerge(a, b){
+    if (!a || typeof a !== "object" || Array.isArray(a) || !b || typeof b !== "object" || Array.isArray(b)) return b;
+    const r = {...a};
+    for (const k in b) r[k] = (r[k] && typeof r[k] === "object" && !Array.isArray(r[k]) && b[k] && typeof b[k] === "object" && !Array.isArray(b[k])) ? deepMerge(r[k], b[k]) : b[k];
+    return r;
+  }
 
   // ---------- errores con los mismos códigos que espera la app ----------
   function mapErr(e){
@@ -51,7 +61,10 @@
       const {data, error} = await sb.from("docs").select("id,data").eq("col", c);
       if (error) throw mapErr(error);
       const m = new Map(); data.forEach(r => m.set(r.id, r.data));
-      cache.set(c, m); loaded.add(c); persist(c); emit(c);
+      const old = getCol(c), was = loaded.has(c);
+      const changed = old.size !== m.size || [...m].some(([k, v]) => !same(old.get(k), v));
+      cache.set(c, m); loaded.add(c);
+      if (changed){ persist(c); emit(c); } else if (!was) emit(c);   // sin cambios: no se repinta nada
     })().finally(() => { delete loading[c]; });
     return loading[c];
   }
@@ -101,20 +114,26 @@
         return snapDoc(id, data ? data.data : undefined, false);
       },
       async set(d){
-        const clean = clone(d);
-        const {error} = await sb.from("docs").upsert({col:c, id, data:clean, updated_at:new Date().toISOString()});
-        if (error) throw mapErr(error);
-        getCol(c).set(id, clean); persist(c); emit(c);
+        const clean = clone(d), m = getCol(c), had = m.has(id), prev = m.get(id);
+        m.set(id, clean); emit(c);
+        let r; try { r = await sb.from("docs").upsert({col:c, id, data:clean, updated_at:new Date().toISOString()}); } catch(e){ r = {error:e}; }
+        if (r.error){ had ? m.set(id, prev) : m.delete(id); emit(c); throw mapErr(r.error); }
+        persist(c);
       },
       async update(d){
-        const {data, error} = await sb.rpc("merge_doc", {p_col:c, p_id:id, p_patch:clone(d)});
-        if (error) throw mapErr(error);
-        getCol(c).set(id, data); persist(c); emit(c);
+        const patch = clone(d), m = getCol(c), had = m.has(id), prev = m.get(id);
+        if (had){ m.set(id, deepMerge(prev, patch)); emit(c); }
+        let r; try { r = await sb.rpc("merge_doc", {p_col:c, p_id:id, p_patch:patch}); } catch(e){ r = {error:e}; }
+        if (r.error){ if (had){ m.set(id, prev); emit(c); } throw mapErr(r.error); }
+        const cur = m.get(id); m.set(id, r.data); persist(c);
+        if (!had || !same(cur, r.data)) emit(c);
       },
       async delete(){
-        const {error} = await sb.from("docs").delete().eq("col", c).eq("id", id);
-        if (error) throw mapErr(error);
-        getCol(c).delete(id); persist(c); emit(c);
+        const m = getCol(c), had = m.has(id), prev = m.get(id);
+        if (had){ m.delete(id); emit(c); }
+        let r; try { r = await sb.from("docs").delete().eq("col", c).eq("id", id); } catch(e){ r = {error:e}; }
+        if (r.error){ if (had){ m.set(id, prev); emit(c); } throw mapErr(r.error); }
+        persist(c);
       },
       onSnapshot(next){
         const fn = () => next(snapDoc(id, getCol(c).get(id), !loaded.has(c)));
@@ -137,7 +156,8 @@
       .on("postgres_changes", {event:"*", schema:"public", table:"docs"}, p => {
         const row = (p.new && p.new.col) ? p.new : p.old; if (!row || !row.col) return;
         const m = getCol(row.col);
-        if (p.eventType === "DELETE") m.delete(row.id); else m.set(row.id, p.new.data);
+        if (p.eventType === "DELETE"){ if (!m.has(row.id)) return; m.delete(row.id); }
+        else { if (m.has(row.id) && same(m.get(row.id), p.new.data)) return; m.set(row.id, p.new.data); }   // el eco de lo que acabamos de guardar no repinta
         persist(row.col); emit(row.col);
       })
       .subscribe(status => { if (status === "SUBSCRIBED") reloadAll(); });
