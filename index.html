@@ -452,6 +452,12 @@ table.t tr:last-child td{border-bottom:0}
 /* Preparación */
 .pend.wrap{flex-wrap:wrap}
 .pend.unpaid{border:2px solid var(--danger)}
+.sacar{margin-top:12px;border:2px solid var(--ink);border-radius:14px;padding:10px 14px;display:grid;gap:4px;background:var(--surface,#fff)}
+.sacar .h{margin:0 0 2px;font-family:var(--display);font-size:1.25rem;letter-spacing:.04em;color:var(--ink);text-transform:uppercase}
+.sacar > div{display:flex;justify-content:space-between;gap:10px;font-size:1.02rem}
+.sacar > div b{font-variant-numeric:tabular-nums}
+.sacar .tot{border-top:1px dashed var(--line);padding-top:6px;margin-top:2px;font-weight:700;color:var(--ink)}
+.sacar .warn{margin:4px 0 0;color:var(--danger);font-size:.9rem}
 .unpaidbox #unpaidTot{color:var(--danger);font-weight:700}
 .pend.who{cursor:pointer}
 .pend.who .n{color:var(--muted);font-size:.85rem;font-weight:600}
@@ -703,6 +709,7 @@ table.t tr:last-child td{border-bottom:0}
           <div class="field" id="expressBox" hidden><label for="closeTotal">Total contado en el cajón (€)</label><input type="text" id="closeTotal" inputmode="decimal" placeholder="Ej. 245,30" autocomplete="off"></div>
           <p class="hint" id="denomHint">Cuenta cuántos billetes y monedas hay en el cajón.</p>
           <div class="denoms" id="denoms"></div>
+          <div id="sacarLive"></div>
           <div class="arqueo" id="arqueo"></div>
           <button type="button" class="btn primary" id="closeBtn">Cerrar caja y guardar</button>
         </div></div></details></section>
@@ -926,7 +933,7 @@ table.t tr:last-child td{border-bottom:0}
           <div class="field"><label for="jugP">Jarra pequeña: cafés que salen</label><input type="number" id="jugP" min="1" max="6" step="1" inputmode="numeric"></div>
         </div>
         <div class="card" id="installHelp" hidden style="display:grid;gap:6px"></div>
-        <div class="row"><button type="button" class="btn" id="changeRole">Cambiar uso de este dispositivo</button><button type="button" class="btn" id="redoSetup">Repetir configuración inicial</button><button type="button" class="btn primary" id="installBtn2">Instalar la app</button><button type="button" class="btn" id="forceUpdate">Actualizar la app</button><span class="hint" id="appVer" style="align-self:center">Versión 67</span><button type="button" class="btn ghost danger" id="logoutBtn">Cerrar sesión</button></div>
+        <div class="row"><button type="button" class="btn" id="changeRole">Cambiar uso de este dispositivo</button><button type="button" class="btn" id="redoSetup">Repetir configuración inicial</button><button type="button" class="btn primary" id="installBtn2">Instalar la app</button><button type="button" class="btn" id="forceUpdate">Actualizar la app</button><span class="hint" id="appVer" style="align-self:center">Versión 68</span><button type="button" class="btn ghost danger" id="logoutBtn">Cerrar sesión</button></div>
         <p class="legal">Esta app organiza pedidos, caja y números internos. No emite tickets ni facturas: seguid usando vuestro sistema de tickets y consultad con la gestoría qué programa de facturación necesitáis por la normativa Veri*factu.</p>
         <div style="border-top:1px solid var(--line);padding-top:12px;display:grid;gap:8px">
           <b>Compartir la app de pedidos de los clientes</b>
@@ -2338,6 +2345,8 @@ function renderArqueo(){
   $("#arqueo").innerHTML = `<div><span>Contado</span><b>${eurC(c)}</b></div>
     <div><span>Debe haber</span><b>${eurC(s.esperado)}</b></div>
     <div><span>Diferencia</span><span class="diff ${diff === 0 ? "ok" : "bad"}">${txt}</span></div>`;
+  const fh = Math.round(cfg("fondoHabitual", 150)*100), out = c - fh;
+  $("#sacarLive").innerHTML = !closeExpress && out > 0 ? retiradaHTML(Object.fromEntries(DENOMS_C.map((d,i) => [d, counts[i]||0])), out).replace("Saca del cajón", `Para dejar ${eurC(fh)} de fondo, saca`) : "";
 }
 const catOptions = sel => `${CATS.map(c => `<option${c === sel ? " selected" : ""}>${esc(c)}</option>`).join("")}`;
 $("#movCat").innerHTML = catOptions("Leche y bebidas vegetales");
@@ -2355,6 +2364,33 @@ function fondoAuto(){
   // Se empieza con el fondo habitual; si al cerrar quedó más, lo que sobra se saca
   return cont > hab ? {v:hab, from:c, contado:cont, sacar: Math.round((cont - hab)*100)/100} : {v:cont, from:c, contado:cont};
 }
+// Qué billetes y monedas sacar para que en el cajón quede justo el fondo.
+// Primero lo grande, guardando cambio para dar vueltas; si así no sale exacto, se busca la combinación con menos piezas.
+const RESERVA = {1000:2, 500:4, 200:5, 100:10, 50:10, 20:10, 10:10, 5:10};
+function retirada(have, out){
+  if (!(out > 0)) return null;
+  const take = {}; let rest = out;
+  const pass = keep => DENOMS_C.forEach(d => { const libre = (have[d]||0) - (take[d]||0) - (keep ? (RESERVA[d]||0) : 0); const n = Math.min(libre, Math.floor(rest/d)); if (n > 0){ take[d] = (take[d]||0) + n; rest -= n*d; } });
+  pass(true); if (rest) pass(false);
+  if (rest){
+    // Combinación exacta con las monedas que hay (mochila acotada, mínimo de piezas)
+    const INF = 1e9, best = new Array(out+1).fill(INF), from = new Array(out+1).fill(null); best[0] = 0;
+    DENOMS_C.forEach(d => { for (let k = 0; k < (have[d]||0); k++) for (let v = out; v >= d; v--) if (best[v-d] + 1 < best[v]){ best[v] = best[v-d] + 1; from[v] = d; } });
+    if (best[out] >= INF) return {take, rest, exact:false};
+    // reconstruir (los pasos guardan la última moneda usada; se vuelve a comprobar con las existencias)
+    const t = {}; let v = out, ok = true;
+    while (v > 0){ const d = from[v]; if (!d){ ok = false; break; } t[d] = (t[d]||0) + 1; if (t[d] > (have[d]||0)){ ok = false; break; } v -= d; }
+    if (ok) return {take:t, rest:0, exact:true};
+    return {take, rest, exact:false};
+  }
+  return {take, rest:0, exact:true};
+}
+function retiradaHTML(have, out){
+  const r = retirada(have, out); if (!r) return "";
+  const rows = DENOMS_C.filter(d => r.take[d]).map(d => `<div><span>${r.take[d]} × ${d >= 500 ? "billete" + (r.take[d] > 1 ? "s" : "") : "moneda" + (r.take[d] > 1 ? "s" : "")} de ${d >= 100 ? d/100 + " €" : d + " cts"}</span><b>${eurC(r.take[d]*d)}</b></div>`).join("");
+  return `<div class="sacar"><p class="h">Saca del cajón</p>${rows}<div class="tot"><span>Total a la caja fuerte</span><b>${eurC(out - r.rest)}</b></div>${r.rest ? `<p class="warn">No sale justo con lo que hay: quedarán ${eurC(r.rest)} de más en el cajón.</p>` : ""}</div>`;
+}
+const haveFrom = desg => { const h = {}; Object.entries(desg||{}).forEach(([k,n]) => { h[Math.round(Number(k)*100)] = Number(n)||0; }); return h; };
 let fondoPrefill = null;
 function renderCaja(){
   const open = !!(shift && shift.open);
@@ -2364,7 +2400,7 @@ function renderCaja(){
     // Se rellena solo si no lo has cambiado tú
     if (document.activeElement !== inp && (inp.value === "" || inp.value === fondoPrefill)){ inp.value = fmtIn(fa.v); fondoPrefill = inp.value; }
     $("#fondoHint").innerHTML = fa.from && fa.sacar
-      ? `Al cerrar el ${dmy(fa.from.closedAt)} contasteis <b>${eur(fa.contado)}</b>. Deja <b>${eur(fa.v)}</b> de fondo y ${config && config.cajaFuerte ? `pasa <b>${eur(fa.sacar)}</b> a la caja fuerte (ya está sumado allí).` : `saca <b>${eur(fa.sacar)}</b> del cajón.`}`
+      ? `Al cerrar el ${dmy(fa.from.closedAt)} contasteis <b>${eur(fa.contado)}</b>. Deja <b>${eur(fa.v)}</b> de fondo y ${config && config.cajaFuerte ? `pasa <b>${eur(fa.sacar)}</b> a la caja fuerte (ya está sumado allí).` : `saca <b>${eur(fa.sacar)}</b> del cajón.`}${fa.from.desglose && Object.keys(fa.from.desglose).length ? retiradaHTML(haveFrom(fa.from.desglose), Math.round(fa.sacar*100)) : `<br><span class="mins">Al cerrar no se contó billete a billete: la próxima vez cuenta por monedas y te diré cuáles sacar.</span>`}`
       : fa.from
       ? `Es lo que contasteis al cerrar el ${dmy(fa.from.closedAt)} a las ${hhmm(fa.from.closedAt)}: <b>${eur(fa.v)}</b>${fa.v < cfg("fondoHabitual", 150) ? `. Para llegar a los ${eur(cfg("fondoHabitual", 150))} de fondo faltan ${eur(cfg("fondoHabitual", 150) - fa.v)}` : ""}. Si sacasteis o metisteis dinero después, cámbialo antes de abrir.`
       : "Cuenta el cambio con el que empiezas el turno.";
