@@ -19,6 +19,11 @@ module.exports = {
     assert.match(await page.$eval("#sub", e => e.textContent), /^(Ajustes|Almacén) · /);
     sinErrores(assert, errors); await close();
   },
+  "en un aparato nuevo el enlace antiguo #ajustes abre QR y pagos": async (lib, assert) => {
+    const {page, errors, close} = await lib.open({hash:"ajustes"});
+    assert.equal(await page.$eval("#sub", e => e.textContent), "Ajustes · QR y pagos");
+    sinErrores(assert, errors); await close();
+  },
   "a 360 px de ancho nada se sale por la derecha en ninguna sección": async (lib, assert) => {
     // Con pedidos, nombres largos y deudas, que es lo que más fácil se desborda
     const rows = lib.seedBase();

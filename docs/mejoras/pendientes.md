@@ -2,7 +2,7 @@
 
 La rutina diaria (lunes a jueves) coge la **primera** línea sin marcar que pueda hacer sola. Lo que Mario cuente (fallos, ideas, capturas) entra **arriba**. Las marcadas con 🔒 necesitan a Mario y la rutina se las salta.
 
-- [ ] En un aparato nuevo, el enlace antiguo `#ajustes` abre Escandallos en vez de QR y pagos.
+- [x] En un aparato nuevo, el enlace antiguo `#ajustes` abre Escandallos en vez de QR y pagos.
 - [ ] Dinero → Caja: resumen del día de un vistazo al entrar (vendido hoy, pendiente de cobro, saldo de la caja fuerte).
 - [ ] En el iPad (modo Cafetera) esconder lo que Laura no usa: solo Cafetera y Tienda.
 - [ ] Revisar la app a 360 px y en modo oscuro buscando textos que se corten o se lean mal.

@@ -933,7 +933,7 @@ table.t tr:last-child td{border-bottom:0}
           <div class="field"><label for="jugP">Jarra pequeña: cafés que salen</label><input type="number" id="jugP" min="1" max="6" step="1" inputmode="numeric"></div>
         </div>
         <div class="card" id="installHelp" hidden style="display:grid;gap:6px"></div>
-        <div class="row"><button type="button" class="btn" id="changeRole">Cambiar uso de este dispositivo</button><button type="button" class="btn" id="redoSetup">Repetir configuración inicial</button><button type="button" class="btn primary" id="installBtn2">Instalar la app</button><button type="button" class="btn" id="forceUpdate">Actualizar la app</button><span class="hint" id="appVer" style="align-self:center">Versión 69</span><button type="button" class="btn ghost danger" id="logoutBtn">Cerrar sesión</button></div>
+        <div class="row"><button type="button" class="btn" id="changeRole">Cambiar uso de este dispositivo</button><button type="button" class="btn" id="redoSetup">Repetir configuración inicial</button><button type="button" class="btn primary" id="installBtn2">Instalar la app</button><button type="button" class="btn" id="forceUpdate">Actualizar la app</button><span class="hint" id="appVer" style="align-self:center">Versión 70</span><button type="button" class="btn ghost danger" id="logoutBtn">Cerrar sesión</button></div>
         <p class="legal">Esta app organiza pedidos, caja y números internos. No emite tickets ni facturas: seguid usando vuestro sistema de tickets y consultad con la gestoría qué programa de facturación necesitáis por la normativa Veri*factu.</p>
         <div style="border-top:1px solid var(--line);padding-top:12px;display:grid;gap:8px">
           <b>Compartir la app de pedidos de los clientes</b>
@@ -1289,13 +1289,13 @@ $("#origenEdit").addEventListener("click", e => {
 });
 document.addEventListener("click", e => { if (!e.target.closest("[data-goins]")) return; goView("escandallos"); setTimeout(() => { const d = $("#f-adde"); if (d){ d.open = true; d.scrollIntoView({behavior:"smooth", block:"start"}); $("#eName").focus(); } }, 150); });
 $("#goCarta").addEventListener("click", () => goView("carta"));
-function setAjTab(t){
-  ajTab = t; lsSet("ajTab", t);
+function setAjTab(t, guardar = true){
+  ajTab = t; if (guardar) lsSet("ajTab", t);
   document.querySelectorAll("#ajNav [data-aj]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.aj === t)));
   document.querySelectorAll("[data-ajp]").forEach(p => p.hidden = p.dataset.ajp !== t);
 }
 document.querySelectorAll("#ajNav [data-aj]").forEach(b => b.addEventListener("click", () => setAjTab(b.dataset.aj)));
-setAjTab(ajTab);
+setAjTab(ajTab, false); // al arrancar no se guarda: en un aparato nuevo #ajustes tiene que seguir abriendo QR y pagos
 let supTab = lsGet("supTab") === "inv" ? "inv" : "esc";
 function setSupTab(t){
   supTab = t; lsSet("supTab", t);
