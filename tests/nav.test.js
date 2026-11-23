@@ -20,9 +20,15 @@ module.exports = {
     sinErrores(assert, errors); await close();
   },
   "a 360 px de ancho nada se sale por la derecha en ninguna sección": async (lib, assert) => {
-    const {page, errors, close} = await lib.open({width:360});
+    // Con pedidos, nombres largos y deudas, que es lo que más fácil se desborda
+    const rows = lib.seedBase();
+    rows.push(...lib.orders(rows, 40, {names:["María Fernanda de los Ángeles","Pablo","Belén Gutiérrez-Santamaría"], pend: i => i % 3 === 0}));
+    rows.push({col:"turno", id:"actual", data:{open:true, openedAt:Date.now() - 3600e3, fondo:150, movs:[]}});
+    const {page, errors, close} = await lib.open({width:360, rows});
     for (const p of ["pedidos","tienda","barra","caja","fuerte","gastos","datos","carta","escandallos","inventario","compra","qr","equipo"]){
       await page.evaluate(h => { location.hash = h; }, p); await page.waitForTimeout(150);
+      await page.evaluate(() => document.querySelectorAll("main details").forEach(d => { d.open = true; }));
+      const sub = await page.$eval("#sub", e => e.textContent); assert.ok(sub && !/undefined/.test(sub), `#${p} no cambió de pantalla`);
       const over = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
       assert.ok(over <= 0, `#${p} se sale ${over} px`);
     }

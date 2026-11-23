@@ -1,2 +1,6 @@
 datos/
 supabase/equipo.sql
+
+# Trabajo local de Claude (no se publica)
+.superpowers/
+capturas/

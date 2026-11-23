@@ -7,7 +7,9 @@ module.exports = {
     await page.click('#modeBar [data-mode="entregar"]'); await page.waitForTimeout(300);
     await page.evaluate(() => { window.__grid = 0; new MutationObserver(() => window.__grid++).observe(document.querySelector("#menuGrid"), {childList:true}); });
     const listos = await page.$$("[data-deliver]"); assert.ok(listos.length > 0, "no hay pedidos listos para entregar");
+    const id = await listos[0].getAttribute("data-deliver");
     await listos[0].click(); await page.waitForTimeout(800);
+    assert.equal(await page.evaluate(id => window.__rows.get("orders|" + id).data.status, id), "entregado", "el clic no entregó el pedido");
     assert.equal(await page.evaluate(() => window.__grid), 0);
     assert.deepEqual(errors, []); await close();
   },

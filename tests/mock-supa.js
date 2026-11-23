@@ -1,4 +1,4 @@
-// Supabase simulado dentro del navegador, para las pruebas de tests/ (nunca se publica en la app)
+// Supabase simulado dentro del navegador, para las pruebas de tests/ (la app nunca lo carga)
 (() => {
   const rows = new Map(); const chans = [];
   window.__rows = rows;
