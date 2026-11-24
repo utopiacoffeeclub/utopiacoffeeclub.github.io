@@ -30,4 +30,4 @@ App web instalable (PWA) de la cafetería takeaway Utopía Coffee Club (Valladol
 - Añadir dependencias o servicios de pago. Todo tiene que seguir siendo gratis.
 
 ## Ideas descartadas
-(ninguna todavía; apúntalas aquí cuando Mario diga que no a algo)
+- Rediseño «Noche de barra» (oscuro espresso, Inter, carta en lista): se publicó el 24/11 y Mario lo retiró el mismo día porque le gusta más el aspecto de antes (crema, granate, Bebas). No cambiar el aspecto general sin preguntar.

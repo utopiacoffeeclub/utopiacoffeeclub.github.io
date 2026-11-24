@@ -25,9 +25,9 @@ function orders(rows, n, opts = {}){
   }
   return out;
 }
-async function open({role = "caja", width = 412, rows = null, hash = "", cpu = 1, scheme = "light"} = {}){
+async function open({role = "caja", width = 412, rows = null, hash = "", cpu = 1} = {}){
   browser = browser || await chromium.launch();
-  const ctx = await browser.newContext({viewport:{width, height:880}, colorScheme:scheme});
+  const ctx = await browser.newContext({viewport:{width, height:880}});
   await ctx.route(/^https:\/\/app\.test\/(.*)$/, r => {
     const f = new URL(r.request().url()).pathname.slice(1) || "index.html";
     if (f === "sw.js") return r.abort();
