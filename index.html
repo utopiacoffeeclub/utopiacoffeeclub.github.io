@@ -652,6 +652,11 @@ table.t tr:last-child td{border-bottom:0}
   </div>
 
   <div id="v-caja" hidden>
+    <section id="cajaHoy" aria-label="Resumen de hoy"><div class="kpis">
+      <div class="kpi" id="hoyVend"><b></b><span>vendido hoy</span></div>
+      <div class="kpi" id="hoyPend"><b></b><span>sin cobrar</span></div>
+      <div class="kpi" id="hoySafe"><b></b><span>en la caja fuerte</span></div>
+    </div></section>
     <section id="claudeSec" hidden><details class="fold" id="f-claude" open><summary class="sec-h"><h2>Sugerencias de la semana</h2><span class="count" id="claudeWhen"></span></summary><div class="foldbody">
       <div class="sugs" id="claudeSugs"></div>
       <p class="hint" style="margin-top:6px">Las prepara Claude una vez por semana con vuestras ventas, el stock, los costes y la previsión del tiempo. Toca «Visto» para quitarlas.</p>
@@ -933,7 +938,7 @@ table.t tr:last-child td{border-bottom:0}
           <div class="field"><label for="jugP">Jarra pequeña: cafés que salen</label><input type="number" id="jugP" min="1" max="6" step="1" inputmode="numeric"></div>
         </div>
         <div class="card" id="installHelp" hidden style="display:grid;gap:6px"></div>
-        <div class="row"><button type="button" class="btn" id="changeRole">Cambiar uso de este dispositivo</button><button type="button" class="btn" id="redoSetup">Repetir configuración inicial</button><button type="button" class="btn primary" id="installBtn2">Instalar la app</button><button type="button" class="btn" id="forceUpdate">Actualizar la app</button><span class="hint" id="appVer" style="align-self:center">Versión 72</span><button type="button" class="btn ghost danger" id="logoutBtn">Cerrar sesión</button></div>
+        <div class="row"><button type="button" class="btn" id="changeRole">Cambiar uso de este dispositivo</button><button type="button" class="btn" id="redoSetup">Repetir configuración inicial</button><button type="button" class="btn primary" id="installBtn2">Instalar la app</button><button type="button" class="btn" id="forceUpdate">Actualizar la app</button><span class="hint" id="appVer" style="align-self:center">Versión 73</span><button type="button" class="btn ghost danger" id="logoutBtn">Cerrar sesión</button></div>
         <p class="legal">Esta app organiza pedidos, caja y números internos. No emite tickets ni facturas: seguid usando vuestro sistema de tickets y consultad con la gestoría qué programa de facturación necesitáis por la normativa Veri*factu.</p>
         <div style="border-top:1px solid var(--line);padding-top:12px;display:grid;gap:8px">
           <b>Compartir la app de pedidos de los clientes</b>
@@ -1861,13 +1866,13 @@ function renderSafe(){
   const box = $("#safeBox"), movs = safeMovs();
   if (document.activeElement && box.contains(document.activeElement) && document.activeElement.tagName === "INPUT") return;
   if (!movs){
-    $("#safeTot").textContent = "";
+    $("#safeTot").textContent = ""; renderHoy();
     box.innerHTML = `<div class="ticket"><p class="hint">Cuenta lo que hay ahora en la caja fuerte para empezar a llevarla.</p>
       <form class="addform" id="safeInit"><div class="field"><label for="safeIni">Hay ahora (€)</label><input type="text" id="safeIni" inputmode="decimal" autocomplete="off" placeholder="Ej. 218"></div><button type="submit" class="btn primary">Empezar</button></form></div>`;
     return;
   }
   const tot = movs.reduce((a,m) => a + m.c, 0), hab = cfg("fondoHabitual", 150);
-  $("#safeTot").textContent = eurC(tot);
+  $("#safeTot").textContent = eurC(tot); renderHoy();
   box.innerHTML = `<div class="kpis"><div class="kpi key ${tot < 0 ? "neg" : ""}"><b>${eurC(tot)}</b><span>en la caja fuerte</span></div>
       <div class="kpi"><b>${eurC(cents(hab))}</b><span>fondo fijo del cajón</span></div></div>
     <p class="hint" style="margin:10px 0">El cajón empieza siempre con ${eurC(cents(hab))}. Al cerrar la caja, lo que sobra pasa aquí solo; los gastos que apuntas salen de aquí (los pagados desde el cajón, no).</p>
@@ -2398,7 +2403,18 @@ function retiradaHTML(have, out){
 }
 const haveFrom = desg => { const h = {}; Object.entries(desg||{}).forEach(([k,n]) => { h[Math.round(Number(k)*100)] = Number(n)||0; }); return h; };
 let fondoPrefill = null;
+/* Resumen del día arriba de Caja: lo vendido hoy, lo que queda sin cobrar y la caja fuerte */
+function renderHoy(){
+  if (!$("#cajaHoy")) return;
+  const hoy = dayKey(), a = aggregate(orders.filter(o => dayKey(o.createdAt || 0) === hoy));
+  const sin = unpaidOrders().reduce((s,o) => s + cents(o.total), 0), deben = pendientes().reduce((s,d) => s + cents(d.importe), 0);
+  const movs = safeMovs();
+  $("#hoyVend").innerHTML = `<b>${eurC(a.ventas)}</b><span>vendido hoy · ${a.n} ${a.n === 1 ? "pedido" : "pedidos"}</span>`;
+  $("#hoyPend").innerHTML = `<b>${eurC(sin)}</b><span>sin cobrar${deben ? `<br>y ${eurC(deben)} que nos deben` : ""}</span>`;
+  $("#hoySafe").innerHTML = movs ? `<b>${eurC(movs.reduce((s,m) => s + m.c, 0))}</b><span>en la caja fuerte</span>` : `<b>—</b><span>caja fuerte sin contar</span>`;
+}
 function renderCaja(){
+  renderHoy();
   const open = !!(shift && shift.open);
   $("#openSec").hidden = open || !gotShift;
   if (!open){

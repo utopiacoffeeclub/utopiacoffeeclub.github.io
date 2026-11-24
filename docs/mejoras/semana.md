@@ -19,3 +19,7 @@ Formato:
 - Pruebas: `node tests/run.js` → 18 bien, 0 mal (5 nuevas del diseño). Contraste mínimo 5,6:1.
 - Sin probar en el móvil: el tacto real de la lista de la carta en el S26 y cómo se ve el iPad con la luz de la cafetería.
 
+## 2026-11-24 · Resumen del día arriba de Dinero → Caja
+- Al entrar en Caja, arriba del todo: lo vendido hoy (con nº de pedidos), lo que queda sin cobrar (y lo que os deben, si hay) y el saldo de la caja fuerte. Solo lee datos: no cambia cobros ni importes. En la pestaña Caja fuerte no sale.
+- Pruebas: `node tests/run.js` → 16 bien, 0 mal (3 nuevas en `tests/hoy.test.js`).
+- Sin probar en el móvil: cómo queda en el S26 de verdad y que se actualice al momento cuando entra un pedido con la pestaña abierta.
