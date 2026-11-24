@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Utopía Comandas</title>
-<meta name="theme-color" content="#f1e9db" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#1b0d10" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F6F1EA" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#15100E" media="(prefers-color-scheme: dark)">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -489,11 +489,94 @@ table.t tr:last-child td{border-bottom:0}
 .bitem .add{font-size:.9rem;color:var(--ready);font-weight:700}
 .tag.rd{background:var(--ready-soft);color:var(--ready);justify-self:start}
 .mise{margin:0;padding-left:20px;display:grid;gap:6px}
+/* ===== Rediseño «Noche de barra» (nov 2026): misma app, acabado premium. Sigue al modo claro/oscuro del aparato ===== */
+@font-face{font-family:"Inter";src:url("fonts/inter-var.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:swap}
+:root{
+  --bg:#F6F1EA; --surface:#FFFFFF; --surface-2:#F0E9E0; --ink:#1E1512; --text:#1E1512; --muted:#6E5C55; --line:#E4DAD0; --rule:#D3C6B9;
+  --accent:#8C1F33; --accent-ink:#FFFFFF; --accent-soft:#F3E1E4;
+  --cocina:#6E5C55; --cocina-soft:#F0E9E0;
+  --ready:#1F6F5C; --ready-ink:#FFFFFF; --ready-soft:#E2F0EA; --danger:#B3261E; --danger-soft:#F9E3E0;
+  --gold:#8A5A12; --gold-soft:#F6ECD9; --matcha:#4C6B22; --matcha-soft:#EDF2E2; --frio:#285F7C; --frio-soft:#E5EFF4; --cafe:#7A4A2A; --cafe-soft:#F3EADF;
+  --body:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#15100E; --surface:#201816; --surface-2:#2A201C; --ink:#F4EBDF; --text:#F4EBDF; --muted:#B8A796; --line:#33281F; --rule:#4A3B30;
+  --accent:#E9788B; --accent-ink:#15100E; --accent-soft:#3A2226;
+  --cocina:#B8A796; --cocina-soft:#2A201C;
+  --ready:#5CC2A6; --ready-ink:#0F1A16; --ready-soft:#16302A; --danger:#F2A7A0; --danger-soft:#3A1E1B;
+  --gold:#E3B66A; --gold-soft:#33281A; --matcha:#A9C46A; --matcha-soft:#232C18; --frio:#8CC3DC; --frio-soft:#1A2830; --cafe:#D6A77F; --cafe-soft:#2E2219; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#15100E; --surface:#201816; --surface-2:#2A201C; --ink:#F4EBDF; --text:#F4EBDF; --muted:#B8A796; --line:#33281F; --rule:#4A3B30;
+  --accent:#E9788B; --accent-ink:#15100E; --accent-soft:#3A2226;
+  --cocina:#B8A796; --cocina-soft:#2A201C;
+  --ready:#5CC2A6; --ready-ink:#0F1A16; --ready-soft:#16302A; --danger:#F2A7A0; --danger-soft:#3A1E1B;
+  --gold:#E3B66A; --gold-soft:#33281A; --matcha:#A9C46A; --matcha-soft:#232C18; --frio:#8CC3DC; --frio-soft:#1A2830; --cafe:#D6A77F; --cafe-soft:#2E2219; color-scheme:dark }
+body{font-family:var(--body);font-size:16px;font-weight:450;letter-spacing:-.005em;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font-family:inherit}
+button{transition:background-color .15s,color .15s,border-color .15s,transform .1s}
+/* Cabecera: marca + efectivo del cajón; pestañas en cápsula */
+.top{border-bottom:0;padding-block:16px 12px;gap:12px}
+.top .brand .word{font-size:1.9rem;letter-spacing:.12em}
+.top .brand .club{font-family:var(--body);font-size:.68rem;font-weight:600;letter-spacing:.26em;color:var(--muted)}
+.top .brand small{font-size:.8rem;letter-spacing:0;font-weight:500}
+.cajanow{display:grid;justify-items:end;line-height:1.15;font-variant-numeric:tabular-nums;margin-left:auto}
+.cajanow span{font-size:.75rem;color:var(--muted);font-weight:500}
+.cajanow b{font-size:1.15rem;font-weight:650}
+.tabs{display:flex;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:4px;gap:2px;width:100%;box-sizing:border-box}
+.tabs button{flex:1 1 auto}
+.tabs button.gear{flex:none;width:44px;padding:0}
+.tabs button,.tabs button.big,.tabs button.office{border:0;background:none;border-radius:12px;min-height:44px;padding:0 12px;font-family:var(--body);font-size:.92rem;font-weight:550;letter-spacing:0;text-transform:none;color:var(--muted);line-height:1}
+.tabs button[aria-pressed="true"]{background:var(--ink);color:var(--bg);font-weight:650}
+.tabs button b{background:var(--accent);color:var(--accent-ink);top:-6px;right:-4px}
+.subnav{border-top:0;padding-top:0;gap:22px;border-bottom:1px solid var(--line)}
+.subnav button{border-radius:0;padding:12px 0;font-size:.95rem;font-weight:550;border-bottom:2px solid transparent;margin-bottom:-1px}
+.subnav button[aria-pressed="true"]{background:none;color:var(--ink);border-bottom-color:var(--accent);font-weight:650}
+.modebar{background:none;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:0;gap:22px;display:flex;margin-top:14px}
+.modebar button{font-family:var(--body);font-size:1rem;font-weight:550;letter-spacing:0;padding:12px 0;border-radius:0;border-bottom:2px solid transparent;margin-bottom:-1px;justify-content:flex-start;flex:none}
+.modebar button[aria-selected="true"]{background:none;color:var(--ink);border-bottom-color:var(--accent);font-weight:650}
+.mbadge{background:var(--accent);color:var(--accent-ink)}
+/* Títulos de sección: pequeños y limpios */
+h1,h2,h3{font-family:var(--body);font-weight:650;letter-spacing:-.01em}
+.sec-h h2{font-size:1.05rem;letter-spacing:0}
+.sec-h::after{height:1px;background:var(--line);opacity:1}
+.group-h{font-family:var(--body);font-size:.75rem;font-weight:650;letter-spacing:.14em;text-transform:uppercase;margin:20px 0 4px}
+/* Carta en lista: nombre, precio y cantidad o «+» */
+.grid{display:flex;flex-direction:column;gap:0}
+.prod,.prod.sp,.prod.mt,.prod.fr,.prod.hc{display:flex;align-items:center;gap:12px;min-height:60px;padding:8px 0;background:none;border:0;border-bottom:1px solid var(--line);border-radius:0}
+.prod .pn{flex:1;font-size:1.05rem;font-weight:600}
+.prod .pp{font-size:1rem;font-variant-numeric:tabular-nums}
+.prod::after{content:"+";width:48px;height:40px;flex:none;display:grid;place-items:center;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-size:1.35rem;font-weight:400}
+.prod:has(.badge)::after{content:none}
+.prod .badge{position:static;order:3;display:flex;align-items:center;justify-content:center;gap:1px;width:48px;height:40px;border-radius:12px;background:var(--accent);color:var(--accent-ink);font-size:1.05rem;padding:0}
+.prod .badge::before{content:"×"}
+.prod:active{transform:none;background:var(--surface-2)}
+.prod.sp .pn::after{content:" ★";color:var(--gold);font-size:.8em}
+/* Superficies, botones y campos */
+.ticket,.card,.kpi,.btk,.pend,.icard,.pcard{border-radius:var(--r);border-color:var(--line)}
+.btk{border-top:3px solid var(--accent)}
+.btn{border-radius:12px;min-height:48px;padding:10px 16px;font-weight:600}
+.btn.small{min-height:40px;border-radius:10px}
+.btn.primary,.btn.go{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+input[type=text],input[type=number],input[type=date],select{min-height:48px;border-radius:12px;background:var(--surface);font-size:1rem}
+.field label,.lbl{font-size:.72rem;font-weight:650;letter-spacing:.12em}
+.seg button{border-radius:12px;min-height:48px;font-weight:600;background:var(--surface)}
+.seg button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.kpi b{font-family:var(--display);font-weight:400;letter-spacing:.02em}
+/* Barra de cobro: un solo botón grande */
+.cartbar{background:var(--bg);color:var(--text);border-top:1px solid var(--line);padding-top:12px}
+.cartbar .sum{font-weight:550;color:var(--muted)}
+.cartbar button{min-height:56px;border-radius:16px;padding:0 22px;font-size:1.05rem;font-weight:650}
+/* Toques finales */
+.toast{border-radius:14px}
+::selection{background:var(--accent);color:var(--accent-ink)}
 </style>
 
 <header class="top">
   <div class="brand"><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="12" rx="7.5" ry="10.5" transform="rotate(35 12 12)" fill="currentColor"/><path d="M12 2.5c-3 3.5 3 6.5 0 10s3 6 0 9" transform="rotate(35 12 12)" stroke="var(--bg)" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>
     <div><span class="word">UTOPÍA</span> <span class="club">COFFEE CLUB</span><small id="sub">Pedidos · tomar, cobrar y entregar</small></div></div>
+  <div class="cajanow" id="cajaNowBox" hidden><span>En el cajón</span><b id="cajaNow" hidden></b></div>
   <nav class="tabs" aria-label="Secciones">
     <button type="button" class="big" data-group="mostrador">Mostrador<b id="shopBadge" hidden></b></button>
     <button type="button" class="big" data-group="cafetera">Cafetera</button>
@@ -933,7 +1016,7 @@ table.t tr:last-child td{border-bottom:0}
           <div class="field"><label for="jugP">Jarra pequeña: cafés que salen</label><input type="number" id="jugP" min="1" max="6" step="1" inputmode="numeric"></div>
         </div>
         <div class="card" id="installHelp" hidden style="display:grid;gap:6px"></div>
-        <div class="row"><button type="button" class="btn" id="changeRole">Cambiar uso de este dispositivo</button><button type="button" class="btn" id="redoSetup">Repetir configuración inicial</button><button type="button" class="btn primary" id="installBtn2">Instalar la app</button><button type="button" class="btn" id="forceUpdate">Actualizar la app</button><span class="hint" id="appVer" style="align-self:center">Versión 69</span><button type="button" class="btn ghost danger" id="logoutBtn">Cerrar sesión</button></div>
+        <div class="row"><button type="button" class="btn" id="changeRole">Cambiar uso de este dispositivo</button><button type="button" class="btn" id="redoSetup">Repetir configuración inicial</button><button type="button" class="btn primary" id="installBtn2">Instalar la app</button><button type="button" class="btn" id="forceUpdate">Actualizar la app</button><span class="hint" id="appVer" style="align-self:center">Versión 71</span><button type="button" class="btn ghost danger" id="logoutBtn">Cerrar sesión</button></div>
         <p class="legal">Esta app organiza pedidos, caja y números internos. No emite tickets ni facturas: seguid usando vuestro sistema de tickets y consultad con la gestoría qué programa de facturación necesitáis por la normativa Veri*factu.</p>
         <div style="border-top:1px solid var(--line);padding-top:12px;display:grid;gap:8px">
           <b>Compartir la app de pedidos de los clientes</b>
@@ -1289,13 +1372,13 @@ $("#origenEdit").addEventListener("click", e => {
 });
 document.addEventListener("click", e => { if (!e.target.closest("[data-goins]")) return; goView("escandallos"); setTimeout(() => { const d = $("#f-adde"); if (d){ d.open = true; d.scrollIntoView({behavior:"smooth", block:"start"}); $("#eName").focus(); } }, 150); });
 $("#goCarta").addEventListener("click", () => goView("carta"));
-function setAjTab(t){
-  ajTab = t; lsSet("ajTab", t);
+function setAjTab(t, guardar = true){
+  ajTab = t; if (guardar) lsSet("ajTab", t);
   document.querySelectorAll("#ajNav [data-aj]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.aj === t)));
   document.querySelectorAll("[data-ajp]").forEach(p => p.hidden = p.dataset.ajp !== t);
 }
 document.querySelectorAll("#ajNav [data-aj]").forEach(b => b.addEventListener("click", () => setAjTab(b.dataset.aj)));
-setAjTab(ajTab);
+setAjTab(ajTab, false); // al arrancar no se guarda: en un aparato nuevo #ajustes tiene que seguir abriendo QR y pagos
 let supTab = lsGet("supTab") === "inv" ? "inv" : "esc";
 function setSupTab(t){
   supTab = t; lsSet("supTab", t);
@@ -3623,8 +3706,16 @@ function renderAll(){
   else renderAjustes();
   updateBanner();
   renderLowBadge();
+  renderCajaNow();
   $("#v-pedidos").dataset.mode = pedMode;
   $("#cartBar").hidden = !(view === "pedidos" && pedMode === "cobrar" && cartTotal().n > 0);
+}
+// Cabecera: efectivo que debería haber en el cajón con la caja abierta
+function renderCajaNow(){
+  let s = null; try { s = shift && shift.open ? shiftSummary() : null; } catch(e){}
+  const on = !!(s && isFinite(s.esperado));
+  $("#cajaNowBox").hidden = !on; $("#cajaNow").hidden = !on;
+  if (on) $("#cajaNow").textContent = eurC(s.esperado);
 }
 // Aviso en «Almacén»: cuántos suministros están por debajo de su mínimo
 function renderLowBadge(){
