@@ -260,6 +260,11 @@ input[type=text],input[type=number],input[type=date],select{width:100%;box-sizin
 body.pc-office .tabs button.big{display:none}
 body.pc-office .tabs{grid-template-columns:auto auto auto;min-width:0}
 body.pc-office #modeBar{display:none!important}
+/* iPad de la cafetera: Laura solo usa Cafetera y Tienda (el engranaje queda para cambiar el uso) */
+body:not(.ipad-barra) .tabs .solo-ipad{display:none}
+body.ipad-barra .tabs [data-group="mostrador"],body.ipad-barra .tabs [data-group="dinero"],body.ipad-barra .tabs [data-group="almacen"]{display:none}
+body.ipad-barra .tabs{grid-template-columns:1fr 1fr auto}
+body.ipad-barra #modeBar{display:none!important}
 @media (min-width:1100px){
   main{max-width:1320px}
   body.pc-office .subnav button{font-size:1.05rem;padding:10px 18px}
@@ -497,6 +502,7 @@ table.t tr:last-child td{border-bottom:0}
   <nav class="tabs" aria-label="Secciones">
     <button type="button" class="big" data-group="mostrador">Mostrador<b id="shopBadge" hidden></b></button>
     <button type="button" class="big" data-group="cafetera">Cafetera</button>
+    <button type="button" class="big solo-ipad" data-group="tiendaB">Tienda<b id="shopBadge3" hidden></b></button>
     <button type="button" class="office" data-group="dinero">Dinero</button>
     <button type="button" class="office" data-group="almacen">Almacén<b id="lowBadge" hidden></b></button>
     <button type="button" class="office gear" data-group="ajustes" aria-label="Ajustes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3h.1a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8v.1a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
@@ -938,7 +944,7 @@ table.t tr:last-child td{border-bottom:0}
           <div class="field"><label for="jugP">Jarra pequeña: cafés que salen</label><input type="number" id="jugP" min="1" max="6" step="1" inputmode="numeric"></div>
         </div>
         <div class="card" id="installHelp" hidden style="display:grid;gap:6px"></div>
-        <div class="row"><button type="button" class="btn" id="changeRole">Cambiar uso de este dispositivo</button><button type="button" class="btn" id="redoSetup">Repetir configuración inicial</button><button type="button" class="btn primary" id="installBtn2">Instalar la app</button><button type="button" class="btn" id="forceUpdate">Actualizar la app</button><span class="hint" id="appVer" style="align-self:center">Versión 73</span><button type="button" class="btn ghost danger" id="logoutBtn">Cerrar sesión</button></div>
+        <div class="row"><button type="button" class="btn" id="changeRole">Cambiar uso de este dispositivo</button><button type="button" class="btn" id="redoSetup">Repetir configuración inicial</button><button type="button" class="btn primary" id="installBtn2">Instalar la app</button><button type="button" class="btn" id="forceUpdate">Actualizar la app</button><span class="hint" id="appVer" style="align-self:center">Versión 74</span><button type="button" class="btn ghost danger" id="logoutBtn">Cerrar sesión</button></div>
         <p class="legal">Esta app organiza pedidos, caja y números internos. No emite tickets ni facturas: seguid usando vuestro sistema de tickets y consultad con la gestoría qué programa de facturación necesitáis por la normativa Veri*factu.</p>
         <div style="border-top:1px solid var(--line);padding-top:12px;display:grid;gap:8px">
           <b>Compartir la app de pedidos de los clientes</b>
@@ -1002,7 +1008,7 @@ const PAGES = {
   carta:{v:"carta", g:"almacen"}, escandallos:{v:"ajustes", g:"almacen", aj:"suministros", sup:"esc"}, inventario:{v:"ajustes", g:"almacen", aj:"suministros", sup:"inv"}, compra:{v:"ajustes", g:"almacen", aj:"compra"},
   qr:{v:"ajustes", g:"ajustes", aj:"qr"}, equipo:{v:"ajustes", g:"ajustes", aj:"equipo"}
 };
-const GROUP_HOME = {mostrador:"pedidos", cafetera:"barra", dinero:"caja", almacen:"carta", ajustes:"qr"};
+const GROUP_HOME = {tiendaB:"tienda", mostrador:"pedidos", cafetera:"barra", dinero:"caja", almacen:"carta", ajustes:"qr"};
 const DENOMS = [50,20,10,5,2,1,0.5,0.2,0.1,0.05,0.02,0.01];
 const DENOMS_C = DENOMS.map(d => Math.round(d*100));
 const CATS = ["Café y matcha","Leche y bebidas vegetales","Repostería","Vasos y envases","Limpieza","Alquiler","Luz, agua e internet","Autónomos y gestoría","Otros"];
@@ -1050,7 +1056,8 @@ function normPage(p){
   return null;
 }
 const pcOffice = () => document.body.classList.contains("pc-office");
-const groupOf = p => (p === "tienda" && pcOffice()) ? "dinero" : PAGES[p].g;
+const ipadBarra = () => document.body.classList.contains("ipad-barra");
+const groupOf = p => p === "tienda" ? (pcOffice() ? "dinero" : ipadBarra() ? "tiendaB" : "mostrador") : PAGES[p].g;
 function groupLast(g){ const l = lsGet("g-"+g); return (g !== "mostrador" && PAGES[l] && groupOf(l) === g) ? l : GROUP_HOME[g]; }
 function pickView(){
   const h = normPage(location.hash.replace("#",""));
@@ -1062,9 +1069,12 @@ function pickView(){
 // Ordenador: pantalla grande y ratón (no tablet)
 function isDesktop(){ try { return window.innerWidth >= 1100 && matchMedia("(hover:hover) and (pointer:fine)").matches; } catch(e){ return false; } }
 if (role === "oficina") document.body.classList.add("pc-office");
+if (role === "barra") document.body.classList.add("ipad-barra");
 function setView(p){
   if (inSetup) return;
   p = normPage(p) || "pedidos";
+  // En el iPad de la cafetera, Mostrador, Dinero y Almacén no salen: se va a la Cafetera
+  if (ipadBarra() && ["mostrador","dinero","almacen"].includes(groupOf(p))) p = "barra";
   const P = PAGES[p], g = groupOf(p);
   page = p; view = P.v;
   lsSet("vista2", p); lsSet("g-"+g, p);
@@ -2793,7 +2803,7 @@ function tCard(o){
 }
 function renderShopBadge(){
   const n = tPedidos.filter(o => o.status === "nuevo").length;
-  [$("#shopBadge"), $("#shopBadge2")].forEach(b => { b.hidden = !n; b.textContent = n; });
+  [$("#shopBadge"), $("#shopBadge2"), $("#shopBadge3")].forEach(b => { b.hidden = !n; b.textContent = n; });
 }
 function renderTienda(){
   renderShopBadge();
@@ -3807,6 +3817,7 @@ async function saveStep(cur){
     if (!tmpRole){ setupErr("Elige para qué es este dispositivo."); return false; }
     role = tmpRole; lsSet("rol", role); lsSet("vista2", role === "barra" ? "barra" : role === "oficina" ? groupLast("dinero") : "pedidos");
     document.body.classList.toggle("pc-office", role === "oficina");
+    document.body.classList.toggle("ipad-barra", role === "barra");
     if (setupMode === "auto" && role === "barra" && !(config && config.setupDone)) barraOnly = true;
     return true;
   }

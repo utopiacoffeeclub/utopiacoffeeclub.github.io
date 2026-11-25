@@ -23,3 +23,8 @@ Formato:
 - Al entrar en Caja, arriba del todo: lo vendido hoy (con nº de pedidos), lo que queda sin cobrar (y lo que os deben, si hay) y el saldo de la caja fuerte. Solo lee datos: no cambia cobros ni importes. En la pestaña Caja fuerte no sale.
 - Pruebas: `node tests/run.js` → 16 bien, 0 mal (3 nuevas en `tests/hoy.test.js`).
 - Sin probar en el móvil: cómo queda en el S26 de verdad y que se actualice al momento cuando entra un pedido con la pestaña abierta.
+
+## 2026-11-25 · En el iPad de la cafetera solo salen Cafetera y Tienda
+- En un aparato con uso «Cafetera» (el iPad de Laura), arriba solo están Cafetera, Tienda (con su aviso de pedidos nuevos) y el engranaje. Mostrador, Dinero y Almacén no salen, y si un enlace o el último recuerdo apuntaban ahí, se abre la Cafetera. El engranaje se queda para poder cambiar el uso del aparato (Ajustes → Equipo). El móvil, «Las dos» y el ordenador de casa no cambian. No toca cobros ni importes.
+- Pruebas: `node tests/run.js` → 20 bien, 0 mal (4 nuevas en `tests/ipad.test.js`; en `nav.test.js` la lista de pestañas ya no cuenta el botón Tienda del iPad).
+- Sin probar en el móvil: cómo se ve en el iPad de verdad y que Laura no eche nada de menos (si usa algo de Mostrador, se vuelve atrás en un momento).
