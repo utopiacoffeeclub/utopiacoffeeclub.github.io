@@ -36,8 +36,8 @@ input,textarea,select,[contenteditable]{-webkit-user-select:text;user-select:tex
   --bg:#f1e9db; --surface:#faf5ec; --ink:#5e0f1c; --text:#3b0a12; --muted:#8a4a52; --line:#dcc6bd; --rule:#b98f90;
   --accent:#5e0f1c; --accent-ink:#f8f1e6; --accent-soft:#ecdcd6;
   --cocina:#8a4a52; --cocina-soft:#efe1db;
-  --ready:#066d77; --ready-ink:#f8f1e6; --ready-soft:#d9ebe9; --danger:#c2360f; --danger-soft:#f7ddd2;
-  --gold:#a8680f; --gold-soft:#f4e4c6; --matcha:#5b7a2e; --matcha-soft:#e6eccf; --frio:#2f6f8f; --frio-soft:#e1edf2; --cafe:#7a4a2a; --cafe-soft:#efe1d2;
+  --ready:#066d77; --ready-ink:#f8f1e6; --ready-soft:#d9ebe9; --danger:#c2360f; --danger-soft:#f7ddd2; --on-danger:#fff;
+  --gold:#a8680f; --gold-soft:#f4e4c6; --matcha:#516e27; --matcha-soft:#e6eccf; --frio:#2f6f8f; --frio-soft:#e1edf2; --cafe:#7a4a2a; --cafe-soft:#efe1d2;
   --display:"Bebas Neue","Oswald","Arial Narrow",Impact,sans-serif;
   --body:"Barlow Condensed","Arial Narrow","Helvetica Neue",Arial,sans-serif;
   --r:10px;
@@ -46,13 +46,13 @@ input,textarea,select,[contenteditable]{-webkit-user-select:text;user-select:tex
   --bg:#1b0d10; --surface:#271519; --ink:#f1e9db; --text:#efe5d6; --muted:#c79ca3; --line:#43262c; --rule:#6b3d45;
   --accent:#e8b4bb; --accent-ink:#1b0d10; --accent-soft:#3a1d23;
   --cocina:#d6a1a8; --cocina-soft:#35201f;
-  --ready:#4fb6bf; --ready-ink:#0e1d1f; --ready-soft:#123236; --danger:#ff8a6b; --danger-soft:#3d1c14;
+  --ready:#4fb6bf; --ready-ink:#0e1d1f; --ready-soft:#123236; --danger:#ff8a6b; --danger-soft:#3d1c14; --on-danger:#1b0d10;
   --gold:#e3ad55; --gold-soft:#3a2a12; --matcha:#a9c46a; --matcha-soft:#26301a; --frio:#8cc3dc; --frio-soft:#1b2a33; --cafe:#d6a77f; --cafe-soft:#33241a; color-scheme:dark }}
 :root[data-theme="dark"]{
   --bg:#1b0d10; --surface:#271519; --ink:#f1e9db; --text:#efe5d6; --muted:#c79ca3; --line:#43262c; --rule:#6b3d45;
   --accent:#e8b4bb; --accent-ink:#1b0d10; --accent-soft:#3a1d23;
   --cocina:#d6a1a8; --cocina-soft:#35201f;
-  --ready:#4fb6bf; --ready-ink:#0e1d1f; --ready-soft:#123236; --danger:#ff8a6b; --danger-soft:#3d1c14;
+  --ready:#4fb6bf; --ready-ink:#0e1d1f; --ready-soft:#123236; --danger:#ff8a6b; --danger-soft:#3d1c14; --on-danger:#1b0d10;
   --gold:#e3ad55; --gold-soft:#3a2a12; --matcha:#a9c46a; --matcha-soft:#26301a; --frio:#8cc3dc; --frio-soft:#1b2a33; --cafe:#d6a77f; --cafe-soft:#33241a; color-scheme:dark }
 
 body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:17px;font-weight:500;line-height:1.35;
@@ -77,7 +77,7 @@ button{cursor:pointer}
 .tabs button.gear{padding:6px 9px;display:grid;place-items:center}
 .tabs button.gear svg{width:20px;height:20px;display:block}
 @media (max-width:385px){.tabs button.big{font-size:1.1rem!important;padding:6px 4px!important;letter-spacing:.02em!important}.tabs button.office{padding:6px 5px!important;font-size:.7rem!important;letter-spacing:0!important}}
-.tabs button b{position:absolute;top:-7px;right:-6px;min-width:22px;height:22px;border-radius:11px;background:var(--danger);color:#fff;font-size:.8rem;line-height:22px;text-align:center;padding:0 5px;font-weight:700}
+.tabs button b{position:absolute;top:-7px;right:-6px;min-width:22px;height:22px;border-radius:11px;background:var(--danger);color:var(--on-danger);font-size:.8rem;line-height:22px;text-align:center;padding:0 5px;font-weight:700}
 .tabs button{border:1.5px solid var(--line);background:var(--surface);border-radius:12px;color:var(--muted);white-space:nowrap}
 .tabs button.big{font-family:var(--display);font-size:1.5rem;letter-spacing:.07em;padding:6px 14px;line-height:1.1}
 .tabs button.office{font-weight:700;font-size:.85rem;letter-spacing:.04em;padding:6px 12px;text-transform:uppercase}
@@ -387,7 +387,7 @@ body.in-setup .top .tabs,body.in-setup .cartbar{display:none!important}
 .webord b{font-family:var(--display);font-weight:400;font-size:1.4rem;color:var(--ink)}
 .webord.old{opacity:.6;border-style:dashed}
 .webord.charging{outline:3px solid var(--accent)}
-.mbadge.web{background:var(--gold);color:#fff;animation:pulse 1.2s ease-in-out infinite}
+.mbadge.web{background:var(--gold);color:var(--on-danger);animation:pulse 1.2s ease-in-out infinite}
 .webbanner{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--gold-soft);border-color:var(--gold)}
 .qrbox{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
 .qrbox img{border-radius:8px;background:#fff;padding:6px}
@@ -479,7 +479,7 @@ table.t tr:last-child td{border-bottom:0}
 .pend.fin{cursor:pointer}
 .pend.fin.off{opacity:.6}
 .pend.fin.off .pname{text-decoration:line-through}
-.unpaidtag{display:inline-block;background:var(--danger);color:#fff;font-weight:700;font-size:.78rem;letter-spacing:.05em;border-radius:6px;padding:2px 7px;margin-left:6px;vertical-align:middle}
+.unpaidtag{display:inline-block;background:var(--danger);color:var(--on-danger);font-weight:700;font-size:.78rem;letter-spacing:.05em;border-radius:6px;padding:2px 7px;margin-left:6px;vertical-align:middle}
 .cups{flex-basis:100%;margin:2px 0 0;padding:8px 10px;list-style:none;display:grid;gap:4px;background:var(--bg);border-radius:8px;font-size:.95rem}
 .cups span{color:var(--muted)}
 .pend [data-cups]{flex-basis:100%}
@@ -944,7 +944,7 @@ table.t tr:last-child td{border-bottom:0}
           <div class="field"><label for="jugP">Jarra pequeña: cafés que salen</label><input type="number" id="jugP" min="1" max="6" step="1" inputmode="numeric"></div>
         </div>
         <div class="card" id="installHelp" hidden style="display:grid;gap:6px"></div>
-        <div class="row"><button type="button" class="btn" id="changeRole">Cambiar uso de este dispositivo</button><button type="button" class="btn" id="redoSetup">Repetir configuración inicial</button><button type="button" class="btn primary" id="installBtn2">Instalar la app</button><button type="button" class="btn" id="forceUpdate">Actualizar la app</button><span class="hint" id="appVer" style="align-self:center">Versión 74</span><button type="button" class="btn ghost danger" id="logoutBtn">Cerrar sesión</button></div>
+        <div class="row"><button type="button" class="btn" id="changeRole">Cambiar uso de este dispositivo</button><button type="button" class="btn" id="redoSetup">Repetir configuración inicial</button><button type="button" class="btn primary" id="installBtn2">Instalar la app</button><button type="button" class="btn" id="forceUpdate">Actualizar la app</button><span class="hint" id="appVer" style="align-self:center">Versión 75</span><button type="button" class="btn ghost danger" id="logoutBtn">Cerrar sesión</button></div>
         <p class="legal">Esta app organiza pedidos, caja y números internos. No emite tickets ni facturas: seguid usando vuestro sistema de tickets y consultad con la gestoría qué programa de facturación necesitáis por la normativa Veri*factu.</p>
         <div style="border-top:1px solid var(--line);padding-top:12px;display:grid;gap:8px">
           <b>Compartir la app de pedidos de los clientes</b>
