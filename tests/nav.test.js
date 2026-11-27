@@ -3,7 +3,7 @@ const sinErrores = (assert, errors) => assert.deepEqual(errors, [], "errores de 
 module.exports = {
   "arriba hay Mostrador, Cafetera, Dinero, Almacén y Ajustes": async (lib, assert) => {
     const {page, errors, close} = await lib.open();
-    const g = await page.$$eval(".tabs [data-group]", b => b.map(x => x.dataset.group));
+    const g = await page.$$eval(".tabs [data-group]:not(.solo-ipad)", b => b.map(x => x.dataset.group));
     assert.deepEqual(g, ["mostrador","cafetera","dinero","almacen","ajustes"]);
     sinErrores(assert, errors); await close();
   },

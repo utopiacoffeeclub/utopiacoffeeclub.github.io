@@ -19,3 +19,22 @@ Formato:
 - Pruebas: `node tests/run.js` → 18 bien, 0 mal (5 nuevas del diseño). Contraste mínimo 5,6:1.
 - Sin probar en el móvil: el tacto real de la lista de la carta en el S26 y cómo se ve el iPad con la luz de la cafetería.
 
+## 2026-11-24 · Resumen del día arriba de Dinero → Caja
+- Al entrar en Caja, arriba del todo: lo vendido hoy (con nº de pedidos), lo que queda sin cobrar (y lo que os deben, si hay) y el saldo de la caja fuerte. Solo lee datos: no cambia cobros ni importes. En la pestaña Caja fuerte no sale.
+- Pruebas: `node tests/run.js` → 16 bien, 0 mal (3 nuevas en `tests/hoy.test.js`).
+- Sin probar en el móvil: cómo queda en el S26 de verdad y que se actualice al momento cuando entra un pedido con la pestaña abierta.
+
+## 2026-11-25 · En el iPad de la cafetera solo salen Cafetera y Tienda
+- En un aparato con uso «Cafetera» (el iPad de Laura), arriba solo están Cafetera, Tienda (con su aviso de pedidos nuevos) y el engranaje. Mostrador, Dinero y Almacén no salen, y si un enlace o el último recuerdo apuntaban ahí, se abre la Cafetera. El engranaje se queda para poder cambiar el uso del aparato (Ajustes → Equipo). El móvil, «Las dos» y el ordenador de casa no cambian. No toca cobros ni importes.
+- Pruebas: `node tests/run.js` → 20 bien, 0 mal (4 nuevas en `tests/ipad.test.js`; en `nav.test.js` la lista de pestañas ya no cuenta el botón Tienda del iPad).
+- Sin probar en el móvil: cómo se ve en el iPad de verdad y que Laura no eche nada de menos (si usa algo de Mostrador, se vuelve atrás en un momento).
+
+## 2026-11-26 · Textos legibles a 360 px y en modo oscuro
+- Revisadas las 13 pantallas a 360 y 412 px, en claro y oscuro: nada se corta ni hace scroll de lado. Lo que se leía mal era en oscuro: la etiqueta «SIN COBRAR» y los numeritos rojos de las pestañas (blanco sobre coral, 2,3:1) y el aviso de pedidos web en Cobrar (blanco sobre dorado, 2:1). Ahora llevan letra oscura en modo oscuro. En claro, el título «Matcha» de la carta es un pelín más oscuro (4,1 → 4,8:1). No cambia nada más del aspecto ni toca cobros.
+- Pruebas: `node tests/run.js` → 28 bien, 0 mal (8 nuevas en `tests/contraste.test.js`: Mostrador, Tienda, Cafetera y Caja, en claro y oscuro).
+- Sin probar en el móvil: cómo se ven los avisos con el brillo real del S26 y del iPad en la cafetería.
+
+## 2026-11-27 · Arreglos de la revisión del viernes
+- En el iPad, «Editar carta y precios» vuelve a abrir la carta (sin las pestañas de Escandallos, Inventario y Lista de la compra, que allí no llevan a ningún sitio); a la Cafetera se vuelve con su botón de arriba. En Caja, el resumen suma al momento una deuda nueva o saldada, y «vendido hoy» dice «cobrado o no» para que no confunda con lo sin cobrar. No toca cobros ni importes.
+- Pruebas: `node tests/run.js` → 31 bien, 0 mal (3 nuevas: 1 en `tests/ipad.test.js`, 2 en `tests/hoy.test.js`).
+- Sin probar en el móvil: abrir la carta desde el iPad de verdad.

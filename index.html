@@ -36,8 +36,8 @@ input,textarea,select,[contenteditable]{-webkit-user-select:text;user-select:tex
   --bg:#f1e9db; --surface:#faf5ec; --ink:#5e0f1c; --text:#3b0a12; --muted:#8a4a52; --line:#dcc6bd; --rule:#b98f90;
   --accent:#5e0f1c; --accent-ink:#f8f1e6; --accent-soft:#ecdcd6;
   --cocina:#8a4a52; --cocina-soft:#efe1db;
-  --ready:#066d77; --ready-ink:#f8f1e6; --ready-soft:#d9ebe9; --danger:#c2360f; --danger-soft:#f7ddd2;
-  --gold:#a8680f; --gold-soft:#f4e4c6; --matcha:#5b7a2e; --matcha-soft:#e6eccf; --frio:#2f6f8f; --frio-soft:#e1edf2; --cafe:#7a4a2a; --cafe-soft:#efe1d2;
+  --ready:#066d77; --ready-ink:#f8f1e6; --ready-soft:#d9ebe9; --danger:#c2360f; --danger-soft:#f7ddd2; --on-danger:#fff;
+  --gold:#a8680f; --gold-soft:#f4e4c6; --matcha:#516e27; --matcha-soft:#e6eccf; --frio:#2f6f8f; --frio-soft:#e1edf2; --cafe:#7a4a2a; --cafe-soft:#efe1d2;
   --display:"Bebas Neue","Oswald","Arial Narrow",Impact,sans-serif;
   --body:"Barlow Condensed","Arial Narrow","Helvetica Neue",Arial,sans-serif;
   --r:10px;
@@ -46,13 +46,13 @@ input,textarea,select,[contenteditable]{-webkit-user-select:text;user-select:tex
   --bg:#1b0d10; --surface:#271519; --ink:#f1e9db; --text:#efe5d6; --muted:#c79ca3; --line:#43262c; --rule:#6b3d45;
   --accent:#e8b4bb; --accent-ink:#1b0d10; --accent-soft:#3a1d23;
   --cocina:#d6a1a8; --cocina-soft:#35201f;
-  --ready:#4fb6bf; --ready-ink:#0e1d1f; --ready-soft:#123236; --danger:#ff8a6b; --danger-soft:#3d1c14;
+  --ready:#4fb6bf; --ready-ink:#0e1d1f; --ready-soft:#123236; --danger:#ff8a6b; --danger-soft:#3d1c14; --on-danger:#1b0d10;
   --gold:#e3ad55; --gold-soft:#3a2a12; --matcha:#a9c46a; --matcha-soft:#26301a; --frio:#8cc3dc; --frio-soft:#1b2a33; --cafe:#d6a77f; --cafe-soft:#33241a; color-scheme:dark }}
 :root[data-theme="dark"]{
   --bg:#1b0d10; --surface:#271519; --ink:#f1e9db; --text:#efe5d6; --muted:#c79ca3; --line:#43262c; --rule:#6b3d45;
   --accent:#e8b4bb; --accent-ink:#1b0d10; --accent-soft:#3a1d23;
   --cocina:#d6a1a8; --cocina-soft:#35201f;
-  --ready:#4fb6bf; --ready-ink:#0e1d1f; --ready-soft:#123236; --danger:#ff8a6b; --danger-soft:#3d1c14;
+  --ready:#4fb6bf; --ready-ink:#0e1d1f; --ready-soft:#123236; --danger:#ff8a6b; --danger-soft:#3d1c14; --on-danger:#1b0d10;
   --gold:#e3ad55; --gold-soft:#3a2a12; --matcha:#a9c46a; --matcha-soft:#26301a; --frio:#8cc3dc; --frio-soft:#1b2a33; --cafe:#d6a77f; --cafe-soft:#33241a; color-scheme:dark }
 
 body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:17px;font-weight:500;line-height:1.35;
@@ -77,7 +77,7 @@ button{cursor:pointer}
 .tabs button.gear{padding:6px 9px;display:grid;place-items:center}
 .tabs button.gear svg{width:20px;height:20px;display:block}
 @media (max-width:385px){.tabs button.big{font-size:1.1rem!important;padding:6px 4px!important;letter-spacing:.02em!important}.tabs button.office{padding:6px 5px!important;font-size:.7rem!important;letter-spacing:0!important}}
-.tabs button b{position:absolute;top:-7px;right:-6px;min-width:22px;height:22px;border-radius:11px;background:var(--danger);color:#fff;font-size:.8rem;line-height:22px;text-align:center;padding:0 5px;font-weight:700}
+.tabs button b{position:absolute;top:-7px;right:-6px;min-width:22px;height:22px;border-radius:11px;background:var(--danger);color:var(--on-danger);font-size:.8rem;line-height:22px;text-align:center;padding:0 5px;font-weight:700}
 .tabs button{border:1.5px solid var(--line);background:var(--surface);border-radius:12px;color:var(--muted);white-space:nowrap}
 .tabs button.big{font-family:var(--display);font-size:1.5rem;letter-spacing:.07em;padding:6px 14px;line-height:1.1}
 .tabs button.office{font-weight:700;font-size:.85rem;letter-spacing:.04em;padding:6px 12px;text-transform:uppercase}
@@ -260,6 +260,11 @@ input[type=text],input[type=number],input[type=date],select{width:100%;box-sizin
 body.pc-office .tabs button.big{display:none}
 body.pc-office .tabs{grid-template-columns:auto auto auto;min-width:0}
 body.pc-office #modeBar{display:none!important}
+/* iPad de la cafetera: Laura solo usa Cafetera y Tienda (el engranaje queda para cambiar el uso) */
+body:not(.ipad-barra) .tabs .solo-ipad{display:none}
+body.ipad-barra .tabs [data-group="mostrador"],body.ipad-barra .tabs [data-group="dinero"],body.ipad-barra .tabs [data-group="almacen"]{display:none}
+body.ipad-barra .tabs{grid-template-columns:1fr 1fr auto}
+body.ipad-barra #modeBar{display:none!important}
 @media (min-width:1100px){
   main{max-width:1320px}
   body.pc-office .subnav button{font-size:1.05rem;padding:10px 18px}
@@ -382,7 +387,7 @@ body.in-setup .top .tabs,body.in-setup .cartbar{display:none!important}
 .webord b{font-family:var(--display);font-weight:400;font-size:1.4rem;color:var(--ink)}
 .webord.old{opacity:.6;border-style:dashed}
 .webord.charging{outline:3px solid var(--accent)}
-.mbadge.web{background:var(--gold);color:#fff;animation:pulse 1.2s ease-in-out infinite}
+.mbadge.web{background:var(--gold);color:var(--on-danger);animation:pulse 1.2s ease-in-out infinite}
 .webbanner{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--gold-soft);border-color:var(--gold)}
 .qrbox{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
 .qrbox img{border-radius:8px;background:#fff;padding:6px}
@@ -474,7 +479,7 @@ table.t tr:last-child td{border-bottom:0}
 .pend.fin{cursor:pointer}
 .pend.fin.off{opacity:.6}
 .pend.fin.off .pname{text-decoration:line-through}
-.unpaidtag{display:inline-block;background:var(--danger);color:#fff;font-weight:700;font-size:.78rem;letter-spacing:.05em;border-radius:6px;padding:2px 7px;margin-left:6px;vertical-align:middle}
+.unpaidtag{display:inline-block;background:var(--danger);color:var(--on-danger);font-weight:700;font-size:.78rem;letter-spacing:.05em;border-radius:6px;padding:2px 7px;margin-left:6px;vertical-align:middle}
 .cups{flex-basis:100%;margin:2px 0 0;padding:8px 10px;list-style:none;display:grid;gap:4px;background:var(--bg);border-radius:8px;font-size:.95rem}
 .cups span{color:var(--muted)}
 .pend [data-cups]{flex-basis:100%}
@@ -497,6 +502,7 @@ table.t tr:last-child td{border-bottom:0}
   <nav class="tabs" aria-label="Secciones">
     <button type="button" class="big" data-group="mostrador">Mostrador<b id="shopBadge" hidden></b></button>
     <button type="button" class="big" data-group="cafetera">Cafetera</button>
+    <button type="button" class="big solo-ipad" data-group="tiendaB">Tienda<b id="shopBadge3" hidden></b></button>
     <button type="button" class="office" data-group="dinero">Dinero</button>
     <button type="button" class="office" data-group="almacen">Almacén<b id="lowBadge" hidden></b></button>
     <button type="button" class="office gear" data-group="ajustes" aria-label="Ajustes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3h.1a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8v.1a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
@@ -652,6 +658,11 @@ table.t tr:last-child td{border-bottom:0}
   </div>
 
   <div id="v-caja" hidden>
+    <section id="cajaHoy" aria-label="Resumen de hoy"><div class="kpis">
+      <div class="kpi" id="hoyVend"><b></b><span>vendido hoy</span></div>
+      <div class="kpi" id="hoyPend"><b></b><span>sin cobrar</span></div>
+      <div class="kpi" id="hoySafe"><b></b><span>en la caja fuerte</span></div>
+    </div></section>
     <section id="claudeSec" hidden><details class="fold" id="f-claude" open><summary class="sec-h"><h2>Sugerencias de la semana</h2><span class="count" id="claudeWhen"></span></summary><div class="foldbody">
       <div class="sugs" id="claudeSugs"></div>
       <p class="hint" style="margin-top:6px">Las prepara Claude una vez por semana con vuestras ventas, el stock, los costes y la previsión del tiempo. Toca «Visto» para quitarlas.</p>
@@ -933,7 +944,7 @@ table.t tr:last-child td{border-bottom:0}
           <div class="field"><label for="jugP">Jarra pequeña: cafés que salen</label><input type="number" id="jugP" min="1" max="6" step="1" inputmode="numeric"></div>
         </div>
         <div class="card" id="installHelp" hidden style="display:grid;gap:6px"></div>
-        <div class="row"><button type="button" class="btn" id="changeRole">Cambiar uso de este dispositivo</button><button type="button" class="btn" id="redoSetup">Repetir configuración inicial</button><button type="button" class="btn primary" id="installBtn2">Instalar la app</button><button type="button" class="btn" id="forceUpdate">Actualizar la app</button><span class="hint" id="appVer" style="align-self:center">Versión 72</span><button type="button" class="btn ghost danger" id="logoutBtn">Cerrar sesión</button></div>
+        <div class="row"><button type="button" class="btn" id="changeRole">Cambiar uso de este dispositivo</button><button type="button" class="btn" id="redoSetup">Repetir configuración inicial</button><button type="button" class="btn primary" id="installBtn2">Instalar la app</button><button type="button" class="btn" id="forceUpdate">Actualizar la app</button><span class="hint" id="appVer" style="align-self:center">Versión 76</span><button type="button" class="btn ghost danger" id="logoutBtn">Cerrar sesión</button></div>
         <p class="legal">Esta app organiza pedidos, caja y números internos. No emite tickets ni facturas: seguid usando vuestro sistema de tickets y consultad con la gestoría qué programa de facturación necesitáis por la normativa Veri*factu.</p>
         <div style="border-top:1px solid var(--line);padding-top:12px;display:grid;gap:8px">
           <b>Compartir la app de pedidos de los clientes</b>
@@ -997,7 +1008,7 @@ const PAGES = {
   carta:{v:"carta", g:"almacen"}, escandallos:{v:"ajustes", g:"almacen", aj:"suministros", sup:"esc"}, inventario:{v:"ajustes", g:"almacen", aj:"suministros", sup:"inv"}, compra:{v:"ajustes", g:"almacen", aj:"compra"},
   qr:{v:"ajustes", g:"ajustes", aj:"qr"}, equipo:{v:"ajustes", g:"ajustes", aj:"equipo"}
 };
-const GROUP_HOME = {mostrador:"pedidos", cafetera:"barra", dinero:"caja", almacen:"carta", ajustes:"qr"};
+const GROUP_HOME = {tiendaB:"tienda", mostrador:"pedidos", cafetera:"barra", dinero:"caja", almacen:"carta", ajustes:"qr"};
 const DENOMS = [50,20,10,5,2,1,0.5,0.2,0.1,0.05,0.02,0.01];
 const DENOMS_C = DENOMS.map(d => Math.round(d*100));
 const CATS = ["Café y matcha","Leche y bebidas vegetales","Repostería","Vasos y envases","Limpieza","Alquiler","Luz, agua e internet","Autónomos y gestoría","Otros"];
@@ -1045,7 +1056,8 @@ function normPage(p){
   return null;
 }
 const pcOffice = () => document.body.classList.contains("pc-office");
-const groupOf = p => (p === "tienda" && pcOffice()) ? "dinero" : PAGES[p].g;
+const ipadBarra = () => document.body.classList.contains("ipad-barra");
+const groupOf = p => p === "tienda" ? (pcOffice() ? "dinero" : ipadBarra() ? "tiendaB" : "mostrador") : PAGES[p].g;
 function groupLast(g){ const l = lsGet("g-"+g); return (g !== "mostrador" && PAGES[l] && groupOf(l) === g) ? l : GROUP_HOME[g]; }
 function pickView(){
   const h = normPage(location.hash.replace("#",""));
@@ -1057,9 +1069,13 @@ function pickView(){
 // Ordenador: pantalla grande y ratón (no tablet)
 function isDesktop(){ try { return window.innerWidth >= 1100 && matchMedia("(hover:hover) and (pointer:fine)").matches; } catch(e){ return false; } }
 if (role === "oficina") document.body.classList.add("pc-office");
+if (role === "barra") document.body.classList.add("ipad-barra");
 function setView(p){
   if (inSetup) return;
   p = normPage(p) || "pedidos";
+  // En el iPad de la cafetera, Mostrador, Dinero y Almacén no salen: se va a la Cafetera
+  // (la carta sí: se abre desde «Editar carta y precios» de la Cafetera)
+  if (ipadBarra() && p !== "carta" && ["mostrador","dinero","almacen"].includes(groupOf(p))) p = "barra";
   const P = PAGES[p], g = groupOf(p);
   page = p; view = P.v;
   lsSet("vista2", p); lsSet("g-"+g, p);
@@ -1072,7 +1088,7 @@ function setView(p){
   document.querySelectorAll(".tabs [data-group]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.group === g)));
   let n = 0;
   document.querySelectorAll("#subNav [data-page]").forEach(b => {
-    const on = b.dataset.g === g && (!b.dataset.pc || pcOffice());
+    const on = b.dataset.g === g && (!b.dataset.pc || pcOffice()) && !(ipadBarra() && g === "almacen");
     b.hidden = !on; if (on) n++;
     b.setAttribute("aria-pressed", String(b.dataset.page === p));
     if (on && b.dataset.page === p) b.scrollIntoView({block:"nearest", inline:"nearest"});
@@ -1861,13 +1877,13 @@ function renderSafe(){
   const box = $("#safeBox"), movs = safeMovs();
   if (document.activeElement && box.contains(document.activeElement) && document.activeElement.tagName === "INPUT") return;
   if (!movs){
-    $("#safeTot").textContent = "";
+    $("#safeTot").textContent = ""; renderHoy();
     box.innerHTML = `<div class="ticket"><p class="hint">Cuenta lo que hay ahora en la caja fuerte para empezar a llevarla.</p>
       <form class="addform" id="safeInit"><div class="field"><label for="safeIni">Hay ahora (€)</label><input type="text" id="safeIni" inputmode="decimal" autocomplete="off" placeholder="Ej. 218"></div><button type="submit" class="btn primary">Empezar</button></form></div>`;
     return;
   }
   const tot = movs.reduce((a,m) => a + m.c, 0), hab = cfg("fondoHabitual", 150);
-  $("#safeTot").textContent = eurC(tot);
+  $("#safeTot").textContent = eurC(tot); renderHoy();
   box.innerHTML = `<div class="kpis"><div class="kpi key ${tot < 0 ? "neg" : ""}"><b>${eurC(tot)}</b><span>en la caja fuerte</span></div>
       <div class="kpi"><b>${eurC(cents(hab))}</b><span>fondo fijo del cajón</span></div></div>
     <p class="hint" style="margin:10px 0">El cajón empieza siempre con ${eurC(cents(hab))}. Al cerrar la caja, lo que sobra pasa aquí solo; los gastos que apuntas salen de aquí (los pagados desde el cajón, no).</p>
@@ -2398,7 +2414,18 @@ function retiradaHTML(have, out){
 }
 const haveFrom = desg => { const h = {}; Object.entries(desg||{}).forEach(([k,n]) => { h[Math.round(Number(k)*100)] = Number(n)||0; }); return h; };
 let fondoPrefill = null;
+/* Resumen del día arriba de Caja: lo vendido hoy, lo que queda sin cobrar y la caja fuerte */
+function renderHoy(){
+  if (!$("#cajaHoy")) return;
+  const hoy = dayKey(), a = aggregate(orders.filter(o => dayKey(o.createdAt || 0) === hoy));
+  const sin = unpaidOrders().reduce((s,o) => s + cents(o.total), 0), deben = pendientes().reduce((s,d) => s + cents(d.importe), 0);
+  const movs = safeMovs();
+  $("#hoyVend").innerHTML = `<b>${eurC(a.ventas)}</b><span>vendido hoy, cobrado o no · ${a.n} ${a.n === 1 ? "pedido" : "pedidos"}</span>`;
+  $("#hoyPend").innerHTML = `<b>${eurC(sin)}</b><span>sin cobrar${deben ? `<br>y ${eurC(deben)} que nos deben` : ""}</span>`;
+  $("#hoySafe").innerHTML = movs ? `<b>${eurC(movs.reduce((s,m) => s + m.c, 0))}</b><span>en la caja fuerte</span>` : `<b>—</b><span>caja fuerte sin contar</span>`;
+}
 function renderCaja(){
+  renderHoy();
   const open = !!(shift && shift.open);
   $("#openSec").hidden = open || !gotShift;
   if (!open){
@@ -2777,7 +2804,7 @@ function tCard(o){
 }
 function renderShopBadge(){
   const n = tPedidos.filter(o => o.status === "nuevo").length;
-  [$("#shopBadge"), $("#shopBadge2")].forEach(b => { b.hidden = !n; b.textContent = n; });
+  [$("#shopBadge"), $("#shopBadge2"), $("#shopBadge3")].forEach(b => { b.hidden = !n; b.textContent = n; });
 }
 function renderTienda(){
   renderShopBadge();
@@ -3791,6 +3818,7 @@ async function saveStep(cur){
     if (!tmpRole){ setupErr("Elige para qué es este dispositivo."); return false; }
     role = tmpRole; lsSet("rol", role); lsSet("vista2", role === "barra" ? "barra" : role === "oficina" ? groupLast("dinero") : "pedidos");
     document.body.classList.toggle("pc-office", role === "oficina");
+    document.body.classList.toggle("ipad-barra", role === "barra");
     if (setupMode === "auto" && role === "barra" && !(config && config.setupDone)) barraOnly = true;
     return true;
   }
@@ -4059,7 +4087,7 @@ async function boot(){
     tCatalogo = g("catalogo"); tEstado = g("estado"); tAjustes = g("ajustes") || {};
     if (view === "tienda" && document.activeElement !== $("#tPick")) renderTienda();
   }, err => {});
-  db.collection("deudas").onSnapshot(snap => { deudas = snap.docs.map(d => ({id:d.id, ...d.data()})); renderDebts(); if (view === "pedidos") renderCart(); }, err => {});
+  db.collection("deudas").onSnapshot(snap => { deudas = snap.docs.map(d => ({id:d.id, ...d.data()})); renderDebts(); renderHoy(); if (view === "pedidos") renderCart(); }, err => {});
   db.collection("clientes").orderBy("t", "desc").limit(300).onSnapshot(snap => { clientes = snap.docs.map(d => ({id:d.id, ...d.data()})); renderRegular(); }, err => {});
 }
 boot();
