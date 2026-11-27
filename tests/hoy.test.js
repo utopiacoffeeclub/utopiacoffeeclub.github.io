@@ -36,4 +36,20 @@ module.exports = {
     assert.equal(await page.$eval("#cajaHoy", e => e.offsetHeight), 0);
     assert.deepEqual(errors, []); await close();
   },
+  "al apuntar una deuda con Caja abierta, el resumen la suma al momento": async (lib, assert) => {
+    const {page, errors, close} = await lib.open({rows:datos(lib).rows});
+    await abrirCaja(page);
+    await page.fill("#fondo", "150"); await page.click("#openBtn"); await page.waitForTimeout(300);
+    await page.$eval("#f-deudas", d => d.open = true);
+    await page.fill("#dName", "Pepe"); await page.fill("#dAmt", "4,50"); await page.uncheck("#dCash");
+    await page.click('#debtForm button[type="submit"]'); await page.waitForTimeout(300);
+    assert.match(await page.$eval("#hoyPend", e => e.textContent), /4,50\s*€ que nos deben/);
+    assert.deepEqual(errors, []); await close();
+  },
+  "lo vendido hoy deja claro que incluye lo que aún no se ha cobrado": async (lib, assert) => {
+    const {page, errors, close} = await lib.open({rows:datos(lib).rows});
+    await abrirCaja(page);
+    assert.match(await page.$eval("#hoyVend span", e => e.textContent), /cobrado o no/);
+    assert.deepEqual(errors, []); await close();
+  },
 };

@@ -25,4 +25,12 @@ module.exports = {
     assert.deepEqual(await visibles(page), ["Mostrador","Cafetera","Dinero","Almacén","Ajustes"]);
     sinErrores(assert, errors); await close();
   },
+  "en el iPad, «Editar carta y precios» abre la carta": async (lib, assert) => {
+    const {page, errors, close} = await lib.open({role:"barra", width:820});
+    await page.click("#goCarta"); await page.waitForTimeout(200);
+    assert.equal(await page.$eval("#v-carta", e => e.hidden), false);
+    // Escandallos, Inventario y Lista de la compra no salen: en el iPad no llevarían a ningún sitio
+    assert.equal(await page.$eval("#subNav", e => e.hidden), true);
+    sinErrores(assert, errors); await close();
+  },
 };

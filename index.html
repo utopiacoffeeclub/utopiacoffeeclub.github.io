@@ -944,7 +944,7 @@ table.t tr:last-child td{border-bottom:0}
           <div class="field"><label for="jugP">Jarra pequeña: cafés que salen</label><input type="number" id="jugP" min="1" max="6" step="1" inputmode="numeric"></div>
         </div>
         <div class="card" id="installHelp" hidden style="display:grid;gap:6px"></div>
-        <div class="row"><button type="button" class="btn" id="changeRole">Cambiar uso de este dispositivo</button><button type="button" class="btn" id="redoSetup">Repetir configuración inicial</button><button type="button" class="btn primary" id="installBtn2">Instalar la app</button><button type="button" class="btn" id="forceUpdate">Actualizar la app</button><span class="hint" id="appVer" style="align-self:center">Versión 75</span><button type="button" class="btn ghost danger" id="logoutBtn">Cerrar sesión</button></div>
+        <div class="row"><button type="button" class="btn" id="changeRole">Cambiar uso de este dispositivo</button><button type="button" class="btn" id="redoSetup">Repetir configuración inicial</button><button type="button" class="btn primary" id="installBtn2">Instalar la app</button><button type="button" class="btn" id="forceUpdate">Actualizar la app</button><span class="hint" id="appVer" style="align-self:center">Versión 76</span><button type="button" class="btn ghost danger" id="logoutBtn">Cerrar sesión</button></div>
         <p class="legal">Esta app organiza pedidos, caja y números internos. No emite tickets ni facturas: seguid usando vuestro sistema de tickets y consultad con la gestoría qué programa de facturación necesitáis por la normativa Veri*factu.</p>
         <div style="border-top:1px solid var(--line);padding-top:12px;display:grid;gap:8px">
           <b>Compartir la app de pedidos de los clientes</b>
@@ -1074,7 +1074,8 @@ function setView(p){
   if (inSetup) return;
   p = normPage(p) || "pedidos";
   // En el iPad de la cafetera, Mostrador, Dinero y Almacén no salen: se va a la Cafetera
-  if (ipadBarra() && ["mostrador","dinero","almacen"].includes(groupOf(p))) p = "barra";
+  // (la carta sí: se abre desde «Editar carta y precios» de la Cafetera)
+  if (ipadBarra() && p !== "carta" && ["mostrador","dinero","almacen"].includes(groupOf(p))) p = "barra";
   const P = PAGES[p], g = groupOf(p);
   page = p; view = P.v;
   lsSet("vista2", p); lsSet("g-"+g, p);
@@ -1087,7 +1088,7 @@ function setView(p){
   document.querySelectorAll(".tabs [data-group]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.group === g)));
   let n = 0;
   document.querySelectorAll("#subNav [data-page]").forEach(b => {
-    const on = b.dataset.g === g && (!b.dataset.pc || pcOffice());
+    const on = b.dataset.g === g && (!b.dataset.pc || pcOffice()) && !(ipadBarra() && g === "almacen");
     b.hidden = !on; if (on) n++;
     b.setAttribute("aria-pressed", String(b.dataset.page === p));
     if (on && b.dataset.page === p) b.scrollIntoView({block:"nearest", inline:"nearest"});
@@ -2419,7 +2420,7 @@ function renderHoy(){
   const hoy = dayKey(), a = aggregate(orders.filter(o => dayKey(o.createdAt || 0) === hoy));
   const sin = unpaidOrders().reduce((s,o) => s + cents(o.total), 0), deben = pendientes().reduce((s,d) => s + cents(d.importe), 0);
   const movs = safeMovs();
-  $("#hoyVend").innerHTML = `<b>${eurC(a.ventas)}</b><span>vendido hoy · ${a.n} ${a.n === 1 ? "pedido" : "pedidos"}</span>`;
+  $("#hoyVend").innerHTML = `<b>${eurC(a.ventas)}</b><span>vendido hoy, cobrado o no · ${a.n} ${a.n === 1 ? "pedido" : "pedidos"}</span>`;
   $("#hoyPend").innerHTML = `<b>${eurC(sin)}</b><span>sin cobrar${deben ? `<br>y ${eurC(deben)} que nos deben` : ""}</span>`;
   $("#hoySafe").innerHTML = movs ? `<b>${eurC(movs.reduce((s,m) => s + m.c, 0))}</b><span>en la caja fuerte</span>` : `<b>—</b><span>caja fuerte sin contar</span>`;
 }
@@ -4086,7 +4087,7 @@ async function boot(){
     tCatalogo = g("catalogo"); tEstado = g("estado"); tAjustes = g("ajustes") || {};
     if (view === "tienda" && document.activeElement !== $("#tPick")) renderTienda();
   }, err => {});
-  db.collection("deudas").onSnapshot(snap => { deudas = snap.docs.map(d => ({id:d.id, ...d.data()})); renderDebts(); if (view === "pedidos") renderCart(); }, err => {});
+  db.collection("deudas").onSnapshot(snap => { deudas = snap.docs.map(d => ({id:d.id, ...d.data()})); renderDebts(); renderHoy(); if (view === "pedidos") renderCart(); }, err => {});
   db.collection("clientes").orderBy("t", "desc").limit(300).onSnapshot(snap => { clientes = snap.docs.map(d => ({id:d.id, ...d.data()})); renderRegular(); }, err => {});
 }
 boot();
